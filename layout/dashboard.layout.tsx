@@ -88,7 +88,7 @@ export default function DashboardLayout({ children, title, header, isLoading }: 
     .slice(1);
 
   const handleLogout = () => {
-    Cookies.remove("token");
+    Cookies.remove("jwt");
     router.replace("/");
   };
 
