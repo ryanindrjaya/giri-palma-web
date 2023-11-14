@@ -83,13 +83,19 @@ export default function Produk({ notificationApi }: Props) {
         const promo = item.on_promo;
 
         return (
-          <Switch
-            defaultChecked={promo}
-            onChange={(checked) => {
-              editProduk({ on_promo: checked }, item.id);
-              item.on_promo = checked;
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
             }}
-          />
+          >
+            <Switch
+              defaultChecked={promo}
+              onChange={(checked) => {
+                editProduk({ on_promo: checked }, item.id);
+                item.on_promo = checked;
+              }}
+            />
+          </div>
         );
       },
     },
