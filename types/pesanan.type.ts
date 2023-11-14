@@ -1,0 +1,48 @@
+import { Pelanggan } from "./pelanggan.type";
+import { Produk, ProdukDetail } from "./produk.type";
+
+export interface Pesanan {
+  id: string;
+  nomor_pesanan: string;
+  status_pembayaran: string;
+  status: string;
+  pesanan_detail: PesananDetail[];
+  uang_muka: number;
+  total: number;
+  catatan: string;
+  created_at: string;
+  updated_at: string;
+  pelanggan: Pelanggan;
+  user: User;
+}
+
+export interface PesananDetail {
+  detail_id: string;
+  quantity: number;
+  produk_id: string;
+  produk: Produk;
+  produk_detail: ProdukDetail;
+  produk_detail_id: string;
+  diskon: number;
+  harga: number;
+  harga_jual: number;
+  subtotal: number;
+  pesanan_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface User {
+  id: string;
+  nama: string;
+  kode: string;
+  email: string;
+  phone: string;
+  tanggal_lahir: string;
+  alamat: string;
+  image_url: any;
+  role: string;
+  created_at: string;
+  updated_at: string;
+  lokasi_id: string;
+}

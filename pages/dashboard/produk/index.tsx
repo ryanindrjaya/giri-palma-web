@@ -1,3 +1,5 @@
+"use client";
+
 import DashboardLayout, { inria } from "@/layout/dashboard.layout";
 import { Button, Input, InputNumber, Popconfirm, Switch, Table, Tag, notification } from "antd";
 import { GiSettingsKnobs } from "react-icons/gi";
@@ -148,6 +150,12 @@ export default function Produk({ notificationApi }: Props) {
       });
     }
   };
+
+  useEffect(() => {
+    if (router.query?.id) {
+      setProdukId(router.query.id as string);
+    }
+  }, [router.query]);
 
   return (
     <DashboardLayout

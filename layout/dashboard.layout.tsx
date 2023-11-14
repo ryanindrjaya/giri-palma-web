@@ -72,13 +72,15 @@ export default function DashboardLayout({ children, title, header, isLoading }: 
     }
   };
 
-  const uri = router.asPath.split("/")?.[2] || "dashboard";
+  const uri = router.asPath.split("/")?.[2]?.split("?")?.[0] || "dashboard";
   const breadcrumbs = router.asPath
     .split("/")
     .map((item, index, arr) => ({
       title:
         index === arr.length - 1 ? (
-          <span className={`text-black ${inria.className}`}>{capitalize(item)}</span>
+          <span className={`text-black ${inria.className}`}>
+            {capitalize(item?.split("?")?.[0]?.replace(/-/g, " ") || item)}
+          </span>
         ) : (
           <a className={`text-blue-500 ${inria.className}`} href={arr.slice(0, index + 1).join("/")}>
             {capitalize(item)}

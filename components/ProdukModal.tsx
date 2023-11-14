@@ -1,3 +1,5 @@
+"use client";
+
 import useQuery from "@/hooks/useQuery";
 import { Descriptions, Image, InputNumber, Modal, Select, Table } from "antd";
 import React, { useCallback, useMemo, useState } from "react";
@@ -165,11 +167,25 @@ export default function ProdukModal({ open, produkId, onClose }: Props) {
 
           <div className="mt-5">
             <p className="font-bold text-base">Detail Fullset</p>
-            <Table bordered pagination={false} size="small" columns={detailColumns} dataSource={detail?.fullset} />
+            <Table
+              rowKey={(row) => row.detail_id}
+              bordered
+              pagination={false}
+              size="small"
+              columns={detailColumns}
+              dataSource={detail?.fullset}
+            />
           </div>
           <div className="mt-5">
             <p className="font-bold text-base">Detail Matras Only</p>
-            <Table bordered pagination={false} size="small" columns={detailColumns} dataSource={detail?.matrasOnly} />
+            <Table
+              rowKey={(row) => row.detail_id}
+              bordered
+              pagination={false}
+              size="small"
+              columns={detailColumns}
+              dataSource={detail?.matrasOnly}
+            />
           </div>
         </div>
       )}

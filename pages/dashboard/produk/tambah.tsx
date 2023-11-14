@@ -9,7 +9,6 @@ import fetcher from "@/lib/axios";
 import useQuery from "@/hooks/useQuery";
 import { parseToOption } from "@/lib/helpers/parseToOption";
 import { parseHarga } from "@/lib/helpers/parseNumber";
-import { BsFillTrashFill } from "react-icons/bs";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import FileUpload from "@/components/Upload";
 import { NotificationInstance } from "antd/es/notification/interface";
@@ -61,7 +60,7 @@ export default function TambahProduk({ notificationApi }: Props) {
 
     const data = response.data?.data;
 
-    if (data?.length > 0) {
+    if (data) {
       const kodeNumber = data.length + 1;
       const kode = `KBD${kodeNumber.toString().padStart(3, "0")}`;
       form.setFieldValue("kode", kode);
