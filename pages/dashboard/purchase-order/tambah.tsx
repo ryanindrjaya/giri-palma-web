@@ -82,6 +82,10 @@ export default function TambahPO({ notificationApi }: Props) {
           pembelian_detail: pembelianDetail,
         };
 
+        if (data?.id && data?.pelanggan?.id && data?.user?.id && pembelianDetail?.length > 0) {
+          setIsFullfilled(true);
+        }
+
         form.setFieldsValue(setFieldPesanan);
       } else {
         notificationApi.error({
