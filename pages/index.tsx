@@ -54,9 +54,9 @@ export default function Login() {
       <Head>
         <title>Login | Giri Palma</title>
       </Head>
-      <main className={`flex items-center h-screen relative w-full ${inria.className}`}>
+      <main className={`flex items-center h-screen relative bg-primary w-full ${inria.className}`}>
         {contextHolder}
-        <div className="max-w-md w-full mx-auto flex flex-col rounded-lg border border-gray-200 shadow-md px-6 py-4">
+        <div className="max-w-md w-full bg-white shadow-lg mx-auto flex flex-col rounded-lg border border-gray-200 shadow-md px-6 py-4">
           <div className="flex flex-col gap-1 items-center justify-center">
             <p className="font-bold text-lg text-secondary">Giri Palma</p>
             <img src="/images/logo.png" className="w-20 h-20" />
