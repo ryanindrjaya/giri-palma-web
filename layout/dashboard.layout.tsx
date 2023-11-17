@@ -153,7 +153,7 @@ export default function DashboardLayout({ children, title, header, isLoading, ov
             <div className={inria.className}>{isLoading ? <SkeletonTable /> : children}</div>
           </Content>
           <Footer style={{ textAlign: "center", fontFamily: inria.style.fontFamily, fontWeight: 300 }}>
-            GP ADMIN DASHBOARD VERSION 1.0.0
+            GP ADMIN DASHBOARD VERSION 1.1.0
           </Footer>
         </Layout>
       </Layout>
