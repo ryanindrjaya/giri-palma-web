@@ -3,6 +3,7 @@ import { Produk, ProdukDetail } from "./produk.type";
 
 export interface Pesanan {
   id: string;
+  paired: boolean;
   nomor_pesanan: string;
   status_pembayaran: string;
   status: string;
@@ -13,7 +14,22 @@ export interface Pesanan {
   created_at: string;
   updated_at: string;
   pelanggan: Pelanggan;
+  tukar_tambah?: TukarTambah[];
+  metode_bayar: string;
+  rentang_waktu_pembayaran?: number; // in days
+  termin_pembayaran?: number; // in days
   user: User;
+}
+
+export interface TukarTambah {
+  id: string;
+  metode_bayar: string;
+  kode_bayar: string;
+  harga: number;
+  image_url: string[];
+  created_at: string;
+  updated_at: string;
+  pesanan_id: string;
 }
 
 export interface PesananDetail {

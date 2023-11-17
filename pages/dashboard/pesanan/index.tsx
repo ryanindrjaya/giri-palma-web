@@ -1,5 +1,5 @@
 import DashboardLayout, { inria } from "@/layout/dashboard.layout";
-import { Button, Descriptions, DescriptionsProps, Input, Popconfirm, Table, Tag } from "antd";
+import { Button, Descriptions, DescriptionsProps, Input, Popconfirm, Table, Tag, Tooltip } from "antd";
 import { GiSettingsKnobs } from "react-icons/gi";
 import { AiOutlinePlus, AiOutlineEdit } from "react-icons/ai";
 import React, { useState, useEffect } from "react";
@@ -19,7 +19,8 @@ import { FaBox } from "react-icons/fa";
 import { FiTruck } from "react-icons/fi";
 import { parseHarga } from "@/lib/helpers/parseNumber";
 import { BiPurchaseTag } from "react-icons/bi";
-
+import { FaInfoCircle } from "react-icons/fa";
+import Link from "next/link";
 type Props = {
   notificationApi: NotificationInstance;
 };
@@ -93,7 +94,6 @@ export default function Pesanan({ notificationApi }: Props) {
             color={PESANAN_COLOR[status as keyof typeof PESANAN_COLOR]}
             className="flex gap-1 items-center w-fit"
           >
-            {PESANAN_ICON[status as keyof typeof PESANAN_ICON]}
             <span className=" font-bold">{status}</span>
           </Tag>
         );
@@ -149,20 +149,30 @@ export default function Pesanan({ notificationApi }: Props) {
       align: "center",
       render: (_, item) => (
         <div className="flex justify-center items-center gap-2">
-          <Popconfirm
-            okText="Ya"
-            cancelText="Tidak"
-            onConfirm={() => router.push(`/dashboard/purchase-order/tambah?ref=${item.id}`)}
-            title={`Jadikan pesanan ${item.nomor_pesanan} menjadi PO?`}
-            description="Apakah anda yakin ingin meneruskan status pesanan menjadi PO?"
-            trigger="click"
-            className={`${item.status === "Dipesan" ? "block" : "hidden"}`}
-            placement="left"
-          >
-            <Button type="primary" className="flex p-1 justify-center items-center">
-              <BiPurchaseTag size={18} />
-            </Button>
-          </Popconfirm>
+          <Tooltip title="Lihat Detail">
+            <Link href={`/dashboard/pesanan/${item.id}`}>
+              <Button type="primary" className="flex p-1 justify-center items-center">
+                <FaInfoCircle size={18} />
+              </Button>
+            </Link>
+          </Tooltip>
+          {!item.paired ? (
+            <Popconfirm
+              disabled={item.paired}
+              okText="Ya"
+              cancelText="Tidak"
+              onConfirm={() => router.push(`/dashboard/purchase-order/tambah?ref=${item.id}`)}
+              title={`Jadikan pesanan ${item.nomor_pesanan} menjadi PO?`}
+              description="Apakah anda yakin ingin meneruskan status pesanan menjadi PO?"
+              trigger="click"
+              className={`${item.status === "Dipesan" ? "block" : "hidden"}`}
+              placement="left"
+            >
+              <Button type="primary" disabled={item.paired} className="flex p-1 justify-center items-center">
+                <BiPurchaseTag size={18} />
+              </Button>
+            </Popconfirm>
+          ) : null}
         </div>
       ),
     },
@@ -197,109 +207,6 @@ export default function Pesanan({ notificationApi }: Props) {
         placement: "topRight",
       });
     }
-  };
-
-  const DetailPesanan = ({ pesanan }: { pesanan: PesananType }) => {
-    console.log(pesanan);
-    const descriptionPelanggan: DescriptionsProps["items"] = [
-      {
-        label: "Nama",
-        span: 2,
-        children: pesanan?.pelanggan?.nama,
-      },
-      {
-        label: "Nama Merchant",
-        span: 1,
-        children: pesanan?.pelanggan?.nama_merchant,
-      },
-      {
-        label: "Nomor Telepon",
-        span: 1,
-        children: pesanan?.pelanggan?.telp,
-      },
-      {
-        label: "Provinsi",
-        children: pesanan?.pelanggan?.provinsi,
-      },
-      {
-        label: "Kota",
-        children: pesanan?.pelanggan?.kota,
-      },
-      {
-        label: "Kecamatan",
-        children: pesanan?.pelanggan?.kecamatan,
-      },
-      {
-        label: "Kelurahan",
-        children: pesanan?.pelanggan?.kelurahan,
-      },
-      {
-        label: "Alamat",
-        children: pesanan?.pelanggan?.alamat,
-        span: 4,
-      },
-      {
-        label: "Sales",
-        children: pesanan?.user?.nama,
-        span: 2,
-      },
-      {
-        label: "Telepon Sales",
-        children: pesanan?.user?.phone,
-        span: 2,
-      },
-    ];
-
-    const detailColumns: ColumnsType<PesananDetail> = [
-      {
-        title: "#",
-        width: 50,
-        align: "center",
-        render: (_v, _, index) => index + 1,
-      },
-      {
-        title: "Produk",
-        render: (_v, item) => (
-          <a target="_blank" href={`/dashboard/produk?id=${item?.produk_id}`}>
-            Produk
-          </a>
-        ),
-      },
-      {
-        title: "Harga",
-        key: "harga",
-        render: (_v, item) => `Rp ${parseHarga(item?.harga || 0)}`,
-      },
-      {
-        title: "Harga Jual",
-        key: "harga_jual",
-        render: (_v, item) => `Rp ${parseHarga(item?.harga_jual || 0)}`,
-      },
-      {
-        title: "Jumlah Pesanan",
-        key: "jumlah_pesanan",
-        render: (_v, item) => `${item?.quantity} Item`,
-      },
-      {
-        title: "Subtotal",
-        key: "subtotal",
-        render: (_v, item) => `Rp ${parseHarga(item?.subtotal || 0)}`,
-      },
-    ];
-
-    return (
-      <div>
-        <Descriptions size="small" column={4} bordered title="Detail Pelanggan" items={descriptionPelanggan} />
-        <p className="text-base font-bold">Detail Pesanan</p>
-        <Table
-          bordered
-          size="small"
-          rowKey={(item) => item.detail_id}
-          columns={detailColumns}
-          dataSource={pesanan?.pesanan_detail}
-        />
-      </div>
-    );
   };
 
   return (
@@ -356,10 +263,6 @@ export default function Pesanan({ notificationApi }: Props) {
             //   type: "checkbox",
             //   ...rowSelection,
             // }}
-            expandable={{
-              expandedRowRender: (record) => <DetailPesanan pesanan={record} />,
-              expandedRowClassName: () => "bg-white",
-            }}
             onRow={(record) => {
               return {
                 onClick: () => {

@@ -11,18 +11,20 @@ import { AiOutlineTag } from "react-icons/ai";
 import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import Cookies from "js-cookie";
 import SkeletonTable from "@/components/SkeletonTable";
+import { capitalize } from "@/lib/helpers/capitalize";
 
 type Props = {
   children: React.ReactNode;
   title: string;
   header?: React.ReactNode;
   isLoading?: boolean;
+  overrideBreadcrumb?: string | null;
 };
 
 const { Content, Footer, Sider } = Layout;
 export const inria = Inria_Sans({ subsets: ["latin"], weight: ["300", "400", "700"] });
 
-export default function DashboardLayout({ children, title, header, isLoading }: Props) {
+export default function DashboardLayout({ children, title, header, isLoading, overrideBreadcrumb }: Props) {
   const router = useRouter();
 
   const items: MenuProps["items"] = [
@@ -63,15 +65,6 @@ export default function DashboardLayout({ children, title, header, isLoading }: 
     },
   ];
 
-  const capitalize = (str: string) => {
-    const strArr = str.split("-");
-    if (strArr.length > 1) {
-      return strArr.map((item) => item[0].charAt(0).toUpperCase() + item.slice(1)).join(" ");
-    } else {
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-  };
-
   const uri = router.asPath.split("/")?.[2]?.split("?")?.[0] || "dashboard";
   const breadcrumbs = router.asPath
     .split("/")
@@ -79,7 +72,7 @@ export default function DashboardLayout({ children, title, header, isLoading }: 
       title:
         index === arr.length - 1 ? (
           <span className={`text-black ${inria.className}`}>
-            {capitalize(item?.split("?")?.[0]?.replace(/-/g, " ") || item)}
+            {overrideBreadcrumb ? overrideBreadcrumb : capitalize(item?.split("?")?.[0]?.replace(/-/g, " ") || item)}
           </span>
         ) : (
           <a className={`text-blue-500 ${inria.className}`} href={arr.slice(0, index + 1).join("/")}>

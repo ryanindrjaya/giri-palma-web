@@ -1,8 +1,8 @@
 import DashboardLayout, { inria } from "@/layout/dashboard.layout";
-import { Button, Descriptions, DescriptionsProps, Input, Popconfirm, Table, Tag } from "antd";
+import { Button, Descriptions, DescriptionsProps, Input, Modal, Popconfirm, Table, Tag, Tooltip } from "antd";
 import { GiSettingsKnobs } from "react-icons/gi";
-import { AiOutlinePlus, AiOutlineEdit } from "react-icons/ai";
-import React, { useState, useEffect } from "react";
+import { AiOutlinePlus } from "react-icons/ai";
+import React, { useState, useEffect, useRef } from "react";
 import useQuery from "@/hooks/useQuery";
 import SkeletonTable from "@/components/SkeletonTable";
 import type { ColumnsType } from "antd/es/table";
@@ -12,35 +12,20 @@ import useMutation from "@/hooks/useMutation";
 import { useRouter } from "next/router";
 import { NotificationInstance } from "antd/es/notification/interface";
 
-import { PesananDetail } from "@/types/pesanan.type";
-
-import { IoAlertCircleOutline } from "react-icons/io5";
-import { FaBox } from "react-icons/fa";
-import { FiTruck } from "react-icons/fi";
+import { FaInfoCircle, FaPrint } from "react-icons/fa";
 import { parseHarga } from "@/lib/helpers/parseNumber";
-import { BiPurchaseTag } from "react-icons/bi";
-import { Pembelian } from "@/types/pembelian.type";
+import { DetailPembelian, Pembelian, PembelianDetail } from "@/types/pembelian.type";
+import Link from "next/link";
+import PrintPO from "@/components/PrintPO";
+import { useReactToPrint } from "react-to-print";
+import { PESANAN_COLOR, PESANAN_TEXT_COLOR } from "@/lib/constant/icon_color";
+
+import Cookies from "js-cookie";
+import fetcher from "@/lib/axios";
+import { LoadingOutlined } from "@ant-design/icons";
 
 type Props = {
   notificationApi: NotificationInstance;
-};
-
-export const PESANAN_COLOR = {
-  Dipesan: "#F2D8D8",
-  Dikirim: "#F2ECB3",
-  Terkirim: "#B9E7A3",
-};
-
-export const PESANAN_TEXT_COLOR = {
-  Dipesan: "#B87070",
-  Dikirim: "#5E5E5E",
-  Terkirim: "#3A4F26",
-};
-
-export const PESANAN_ICON = {
-  Dipesan: <IoAlertCircleOutline size={18} />,
-  Dikirim: <FaBox size={18} />,
-  Terkirim: <FiTruck size={18} />,
 };
 
 export default function PurchaseOrder({ notificationApi }: Props) {
@@ -52,7 +37,13 @@ export default function PurchaseOrder({ notificationApi }: Props) {
   const [deletePembelian, { loading: loadingDelete }] = useMutation("/api/admin/pembelian", "delete");
   const [editPembelian, { loading: loadingEdit }] = useMutation("/api/admin/pembelian", "put");
 
-  const [pesananId, setPembelianId] = useState<string | null>(null);
+  const [pembelianDetail, setPembelianDetail] = useState<DetailPembelian | null>(null);
+  const printRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    pageStyle: "@page { size: A5 landscape; margin: 2mm; }",
+  });
 
   useEffect(() => {
     if (debouncedSearchVal) {
@@ -94,7 +85,6 @@ export default function PurchaseOrder({ notificationApi }: Props) {
             color={PESANAN_COLOR[status as keyof typeof PESANAN_COLOR]}
             className="flex gap-1 items-center w-fit"
           >
-            {PESANAN_ICON[status as keyof typeof PESANAN_ICON]}
             <span className=" font-bold">{status}</span>
           </Tag>
         );
@@ -120,12 +110,66 @@ export default function PurchaseOrder({ notificationApi }: Props) {
       key: "catatan",
       dataIndex: "catatan",
     },
+    {
+      title: "Action",
+      align: "center",
+      render: (_, item) => (
+        <div className="flex justify-center items-center gap-2">
+          <Tooltip title="Lihat Detail">
+            <Link href={`/dashboard/purchase-order/${item.id}`}>
+              <Button type="primary" className="flex p-1 justify-center items-center">
+                <FaInfoCircle size={18} />
+              </Button>
+            </Link>
+          </Tooltip>
+          <Tooltip title="Cetak PO">
+            <Button
+              onClick={() => fetchDetailPembelian(item.id)}
+              type="primary"
+              className="flex p-1 justify-center items-center"
+            >
+              <FaPrint size={18} />
+            </Button>
+          </Tooltip>
+        </div>
+      ),
+    },
   ];
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: Pembelian[]) => {
       setSelectedRow(selectedRows);
     },
+  };
+
+  const fetchDetailPembelian = async (id: string) => {
+    notificationApi.info({
+      message: "Loading",
+      icon: <LoadingOutlined />,
+      description: "Sedang mengambil data pembelian",
+      placement: "topRight",
+    });
+    try {
+      const jwt = Cookies.get("jwt");
+      const res = await fetcher.get<{ data: DetailPembelian }>(`/api/admin/pembelian/${id}`, {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      });
+
+      const data = res.data.data as DetailPembelian;
+
+      setPembelianDetail(data);
+    } catch (error: any) {
+      console.log(error);
+      notificationApi.error({
+        message: "Gagal",
+        description: error?.response?.data?.message || "Gagal mengambil data pembelian",
+        placement: "topRight",
+      });
+    } finally {
+      notificationApi.destroy();
+    }
   };
 
   const handleBulkDelete = async () => {
@@ -219,78 +263,87 @@ export default function PurchaseOrder({ notificationApi }: Props) {
   };
 
   return (
-    <DashboardLayout
-      title="Pesanan"
-      header={
-        <div className="w-full flex justify-between items-center">
-          <div className="flex gap-2">
-            <Input.Search onChange={(e) => setSearchVal(e.target.value)} placeholder="Cari nama pelanggan" />
-            <Button className="px-2 flex items-center border border-gray-400 rounded-md bg-white cursor-pointer">
-              <GiSettingsKnobs size={18} />
-            </Button>
-            <Popconfirm
-              title="Hapus pesanan"
-              okButtonProps={{ danger: true, loading: loadingDelete }}
-              description="Apakah anda yakin ingin menghapus pesanan yang dipilih?"
-              onConfirm={handleBulkDelete}
-            >
-              <Button
-                danger
-                loading={loadingDelete}
-                disabled={loadingDelete}
-                className={`px-2 flex items-center border border-gray-400 transition-opacity duration-100 rounded-md bg-white cursor-pointer  ${
-                  selectedRow.length > 0 ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-                } `}
-              >
-                <BsFillTrashFill size={18} />
-              </Button>
-            </Popconfirm>
-          </div>
-          <Button
-            onClick={() => {
-              router.push("/dashboard/purchase-order/tambah");
-            }}
-            type="primary"
-            className="flex gap-2 items-center"
-          >
-            <div className="flex items-center gap-2">
-              <AiOutlinePlus size={18} />
-              <span>Tambah Pembelian</span>
-            </div>
-          </Button>
+    <>
+      <Modal
+        open={!!pembelianDetail}
+        onOk={handlePrint}
+        onCancel={() => setPembelianDetail(null)}
+        okText="Cetak"
+        cancelText="Batal"
+        centered
+        title="Cetak Purchase Order"
+        width={1000}
+      >
+        <div className="w-full flex justify-center">
+          <PrintPO data={pembelianDetail} ref={printRef} />
         </div>
-      }
-    >
-      {loading ? (
-        <SkeletonTable />
-      ) : (
-        <>
-          <Table
-            bordered
-            // rowSelection={{
-            //   type: "checkbox",
-            //   ...rowSelection,
-            // }}
-            expandable={{
-              expandedRowRender: (record) => <DetailPembelian pembelian={record} />,
-              expandedRowClassName: () => "bg-white",
-            }}
-            onRow={(record) => {
-              return {
-                onClick: () => {
-                  setPembelianId(record.id);
-                },
-              };
-            }}
-            rowKey={(item) => item.id}
-            size="small"
-            rootClassName={`rounded-md ${inria.className} `}
-            columns={columns}
-            rowClassName={`${inria.className} text-sm`}
-            dataSource={data || []}
-          />
-        </>
-      )}
-    </DashboardLayout>
+      </Modal>
+      <DashboardLayout
+        title="Purchase Order"
+        header={
+          <div className="w-full flex justify-between items-center">
+            <div className="flex gap-2">
+              <Input.Search onChange={(e) => setSearchVal(e.target.value)} placeholder="Cari nama pelanggan" />
+              <Button className="px-2 flex items-center border border-gray-400 rounded-md bg-white cursor-pointer">
+                <GiSettingsKnobs size={18} />
+              </Button>
+              <Popconfirm
+                title="Hapus pesanan"
+                okButtonProps={{ danger: true, loading: loadingDelete }}
+                description="Apakah anda yakin ingin menghapus pesanan yang dipilih?"
+                onConfirm={handleBulkDelete}
+              >
+                <Button
+                  danger
+                  loading={loadingDelete}
+                  disabled={loadingDelete}
+                  className={`px-2 flex items-center border border-gray-400 transition-opacity duration-100 rounded-md bg-white cursor-pointer  ${
+                    selectedRow.length > 0 ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                  } `}
+                >
+                  <BsFillTrashFill size={18} />
+                </Button>
+              </Popconfirm>
+            </div>
+            <Button
+              onClick={() => {
+                router.push("/dashboard/purchase-order/tambah");
+              }}
+              type="primary"
+              className="flex gap-2 items-center"
+            >
+              <div className="flex items-center gap-2">
+                <AiOutlinePlus size={18} />
+                <span>Tambah Pembelian</span>
+              </div>
+            </Button>
+          </div>
+        }
+      >
+        {loading ? (
+          <SkeletonTable />
+        ) : (
+          <>
+            <Table
+              bordered
+              // rowSelection={{
+              //   type: "checkbox",
+              //   ...rowSelection,
+              // }}
+              expandable={{
+                expandedRowRender: (record) => <DetailPembelian pembelian={record} />,
+                expandedRowClassName: () => "bg-white",
+              }}
+              rowKey={(item) => item.id}
+              size="small"
+              rootClassName={`rounded-md ${inria.className} `}
+              columns={columns}
+              rowClassName={`${inria.className} text-sm`}
+              dataSource={data || []}
+            />
+          </>
+        )}
+      </DashboardLayout>
+    </>
   );
 }

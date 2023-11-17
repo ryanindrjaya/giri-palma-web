@@ -3,5 +3,7 @@ export function parseHarga(harga: number | string) {
     return harga.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
-  return harga.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return Math.round(harga)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

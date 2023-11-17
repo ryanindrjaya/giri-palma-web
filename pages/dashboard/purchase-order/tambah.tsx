@@ -24,7 +24,7 @@ export default function TambahPO({ notificationApi }: Props) {
   const [isFullfilled, setIsFullfilled] = useState<boolean>(false);
   const { data: pesanan, loading: loadingPesanan } = useQuery<Pesanan[]>("/api/admin/pesanan", {
     params: {
-      status: "Dipesan",
+      is_paired: false,
     },
   });
   const { data: pelanggan, loading: loadingPelanggan } = useQuery<Pelanggan[]>("/api/admin/pelanggan");
@@ -72,6 +72,7 @@ export default function TambahPO({ notificationApi }: Props) {
             quantity: item.quantity,
             immutable_quantity: item.quantity,
             diskon: item.diskon,
+            subtotal: item.quantity * (item.produk_detail?.harga || 0) * ((100 - item.diskon) / 100),
           });
         });
 
@@ -105,18 +106,16 @@ export default function TambahPO({ notificationApi }: Props) {
 
   const getNomorPembelian = useCallback(async () => {
     const jwt = Cookies.get("jwt");
-    const response = await fetcher.get("/api/admin/pembelian", {
+    const response = await fetcher.get("/api/generate/po", {
       headers: {
         Authorization: `Bearer ${jwt}`,
       },
     });
 
-    const data = response.data?.data;
+    const noPo = response.data?.data?.nomor;
 
-    if (data) {
-      const kodeNumber = data.length + 1;
-      const kode = `PMB${kodeNumber.toString().padStart(3, "0")}`;
-      form.setFieldValue("nomor_pembelian", kode);
+    if (noPo) {
+      form.setFieldValue("nomor_pembelian", noPo);
     }
   }, []);
 
@@ -233,9 +232,8 @@ export default function TambahPO({ notificationApi }: Props) {
       key: "subtotal",
       title: "Subtotal",
       render: (_v, item, index) => {
-        const subtotalDiskon = item.quantity * (item.produk_detail?.harga || 0) * ((100 - item.diskon) / 100);
         return (
-          <Form.Item noStyle name={["pembelian_detail", index, "subtotal"]} initialValue={subtotalDiskon || 0}>
+          <Form.Item noStyle name={["pembelian_detail", index, "subtotal"]}>
             <InputNumber
               className="w-full"
               min={0}
