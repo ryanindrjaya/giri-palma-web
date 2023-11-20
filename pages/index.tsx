@@ -16,6 +16,17 @@ export default function Login() {
 
   const [login, { loading }] = useMutation<LoginRequest, LoginResponse>("/api/admin/login", "post", {
     onSuccess: (data) => {
+      if (data.data.user.role !== "Admin") {
+        api.error({
+          message: "Tidak diizinkan",
+          description: "Anda tidak memiliki akses ke halaman ini",
+          placement: "topRight",
+        });
+
+        return;
+      }
+
+      localStorage.setItem("user", JSON.stringify(data.data?.user));
       api.success({
         message: "Login Berhasil",
         description: "Mengarahkan ke halaman dashboard",
@@ -56,7 +67,7 @@ export default function Login() {
       </Head>
       <main className={`flex items-center h-screen relative bg-primary w-full ${inria.className}`}>
         {contextHolder}
-        <div className="max-w-md w-full bg-white shadow-lg mx-auto flex flex-col rounded-lg border border-gray-200 shadow-md px-6 py-4">
+        <div className="max-w-md w-full bg-white shadow-lg mx-auto flex flex-col rounded-lg border border-gray-200 px-6 py-4">
           <div className="flex flex-col gap-1 items-center justify-center">
             <p className="font-bold text-lg text-secondary">Giri Palma</p>
             <img src="/images/logo.png" className="w-20 h-20" />

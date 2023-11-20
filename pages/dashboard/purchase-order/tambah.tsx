@@ -22,7 +22,7 @@ export default function TambahPO({ notificationApi }: Props) {
   const router = useRouter();
   const [form] = Form.useForm<CreatePembelian>();
   const [isFullfilled, setIsFullfilled] = useState<boolean>(false);
-  const { data: pesanan, loading: loadingPesanan } = useQuery<Pesanan[]>("/api/admin/pesanan", {
+  const { data: pesanan, loading: loadingPesanan } = useQuery<Pesanan[]>("/api/admin/pesanan?paired=false", {
     params: {
       is_paired: false,
     },
@@ -138,6 +138,8 @@ export default function TambahPO({ notificationApi }: Props) {
       ...values,
       pembelian_detail: detail,
     };
+
+    console.log("body", body);
 
     createPO(body).catch((error: any) => {
       notificationApi.error({
@@ -317,7 +319,7 @@ export default function TambahPO({ notificationApi }: Props) {
                   showSearch
                   onChange={(value) => fetchPesananDetail(value)}
                   placeholder="Pilih nomor pelanggan"
-                  options={parseToOption(pelanggan || [], "id", "nama")}
+                  options={parseToOption(pelanggan || [], "id", "nama_merchant")}
                   filterOption={filterOption}
                 />
               )}

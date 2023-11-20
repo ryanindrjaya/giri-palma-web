@@ -136,6 +136,11 @@ export default function DetailPesanan({ id }: Props) {
       span: 2,
     },
     {
+      label: "Catatan",
+      children: data?.catatan,
+      span: 4,
+    },
+    {
       label: "Uang Muka (DP)",
       children: `Rp ${parseHarga(data?.uang_muka || 0)}`,
       span: 4,
