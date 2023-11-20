@@ -47,7 +47,18 @@ export default function DashboardLayout({ children, title, header, isLoading, ov
       icon: <BsBasket />,
       className: inria.className,
       label: "Produk",
-      onClick: () => router.push("/dashboard/produk"),
+      children: [
+        {
+          key: "produk",
+          label: "Daftar Produk",
+          onClick: () => router.push("/dashboard/produk"),
+        },
+        {
+          key: "lokasi",
+          label: "Lokasi Produk",
+          onClick: () => router.push("/dashboard/lokasi"),
+        },
+      ],
     },
     {
       key: "pesanan",
@@ -95,6 +106,7 @@ export default function DashboardLayout({ children, title, header, isLoading, ov
       </Head>
       <Layout hasSider>
         <Sider
+          theme="light"
           style={{
             overflow: "auto",
             height: "100vh",
@@ -109,7 +121,7 @@ export default function DashboardLayout({ children, title, header, isLoading, ov
             <img src="/images/logo.png" className="w-20 h-20" />
           </div>
 
-          <Menu selectedKeys={[uri]} theme="dark" mode="inline" className="mt-3" items={items} />
+          <Menu selectedKeys={[uri]} theme="light" mode="inline" className="mt-3" items={items} />
         </Sider>
         <Layout
           style={{ marginLeft: 200, display: "flex", flexDirection: "column", minHeight: "100vh", height: "100%" }}
