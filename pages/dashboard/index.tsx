@@ -3,7 +3,7 @@ import { parseHarga } from "@/lib/helpers/parseNumber";
 import { User } from "@/types/login.type";
 import { Card, Select, Statistic, Table } from "antd";
 import React, { useState, useEffect, useMemo } from "react";
-import Chart from "react-apexcharts";
+import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
 import { colors } from "@/lib/constant/colors";
 import { Analytic, AnalyticRequest } from "@/types/analytic.type";
@@ -17,6 +17,8 @@ import { Pelanggan } from "@/types/pelanggan.type";
 type Props = {
   notificationApi: NotificationInstance;
 };
+
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function Dashboard({ notificationApi }: Props) {
   const [user, setUser] = useState<User | null>(null);
