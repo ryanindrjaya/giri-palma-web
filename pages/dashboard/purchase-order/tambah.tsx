@@ -134,12 +134,14 @@ export default function TambahPO({ notificationApi }: Props) {
       ...rest,
     }));
 
+    const _userStr = localStorage.getItem("user");
+    const user = JSON.parse(_userStr || "{}") as User;
+
     const body = {
       ...values,
+      admin_id: user.id,
       pembelian_detail: detail,
     };
-
-    console.log("body", body);
 
     createPO(body).catch((error: any) => {
       notificationApi.error({
