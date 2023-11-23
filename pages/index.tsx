@@ -65,14 +65,16 @@ export default function Login() {
       <Head>
         <title>Login | Giri Palma</title>
       </Head>
-      <main className={`flex items-center justify-end h-screen  relative w-full ${inria.className}`}>
+      <main
+        className={`flex items-center justify-end h-screen max-h-screen overflow-clip relative w-full ${inria.className}`}
+      >
         <img
-          src="/images/login_bg.png"
+          src="/images/login_bg.svg"
           alt="login background"
           className="absolute inset-0 z-10 w-full h-full object-cover object-center"
         />
         {contextHolder}
-        <div className="max-w-sm w-full relative z-20 bg-white shadow-lg flex flex-col rounded-lg border border-gray-200 px-6 py-4">
+        <div className="max-w-sm w-full h-full relative z-20 bg-white flex justify-center flex-col rounded-lg border border-gray-200 px-6 py-4">
           <div className="flex flex-col gap-1 items-center justify-center">
             <p className="font-bold text-lg text-secondary">Giri Palma</p>
             <img src="/images/logo.png" className="w-20 h-20" />
@@ -104,7 +106,14 @@ export default function Login() {
               <Input.Password prefix={<LockOutlined className="mr-1" />} />
             </Form.Item>
 
-            <Button loading={loading} disabled={loading} type="primary" htmlType="submit" className="w-full">
+            <Button
+              size="large"
+              loading={loading}
+              disabled={loading}
+              type="primary"
+              htmlType="submit"
+              className="w-full"
+            >
               Login
             </Button>
           </Form>
