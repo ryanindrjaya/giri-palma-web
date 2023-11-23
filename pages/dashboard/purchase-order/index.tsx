@@ -1,5 +1,17 @@
 import DashboardLayout, { inria } from "@/layout/dashboard.layout";
-import { Button, Descriptions, DescriptionsProps, Input, Modal, Popconfirm, Select, Table, Tag, Tooltip } from "antd";
+import {
+  Button,
+  Descriptions,
+  DescriptionsProps,
+  Input,
+  Modal,
+  Popconfirm,
+  Popover,
+  Select,
+  Table,
+  Tag,
+  Tooltip,
+} from "antd";
 import { GiSettingsKnobs } from "react-icons/gi";
 import { AiOutlinePlus } from "react-icons/ai";
 import React, { useState, useEffect, useRef } from "react";
@@ -22,7 +34,7 @@ import { PESANAN_COLOR, PESANAN_TEXT_COLOR } from "@/lib/constant/icon_color";
 
 import Cookies from "js-cookie";
 import fetcher from "@/lib/axios";
-import { LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined, MenuOutlined } from "@ant-design/icons";
 
 type Props = {
   notificationApi: NotificationInstance;
@@ -137,6 +149,36 @@ export default function PurchaseOrder({ notificationApi }: Props) {
       },
     },
     {
+      title: "Status Pembayaran",
+      key: "status_pembayaran",
+      width: 150,
+      render: (_v, item) => {
+        const status: string = item.status_pembayaran;
+        let color: string = "";
+
+        switch (status) {
+          case "Lunas":
+            color = "green";
+            break;
+          case "Bayar Sebagian":
+            color = "orange";
+            break;
+          case "Belum Lunas":
+            color = "red";
+            break;
+          default:
+            color = "blue";
+            break;
+        }
+
+        return (
+          <Tag color={color} className="flex gap-1 items-center w-fit">
+            {status}
+          </Tag>
+        );
+      },
+    },
+    {
       title: "Total Pesanan",
       key: "total",
       render: (_v, item) => `Rp ${parseHarga(item?.total || 0)}`,
@@ -152,41 +194,46 @@ export default function PurchaseOrder({ notificationApi }: Props) {
       render: (_v, item) => `Rp ${parseHarga(item?.sisa_pembayaran || 0)}`,
     },
     {
-      title: "Catatan",
-      key: "catatan",
-      dataIndex: "catatan",
-    },
-    {
       title: "Action",
       align: "center",
       render: (_, item) => (
-        <div className="flex justify-center items-center gap-2">
-          <Tooltip title="Lihat Detail">
-            <Link href={`/dashboard/purchase-order/${item.id}`}>
-              <Button type="primary" className="flex p-1 justify-center items-center">
-                <FaInfoCircle size={18} />
-              </Button>
-            </Link>
-          </Tooltip>
-          <Tooltip title="Cetak PO">
-            <Button
-              onClick={() => fetchDetailPembelian(item.id)}
-              type="primary"
-              className="flex p-1 justify-center items-center"
-            >
-              <FaPrint size={18} />
-            </Button>
-          </Tooltip>
-          <Tooltip title="Pembayaran">
-            <Button
-              onClick={() => redirectPembayaran(item.id)}
-              type="primary"
-              className="flex p-1 justify-center items-center"
-            >
-              <MdPayment size={18} />
-            </Button>
-          </Tooltip>
-        </div>
+        <Popover
+          trigger="click"
+          placement="bottom"
+          content={
+            <div className="flex justify-center items-center gap-2">
+              <Tooltip title="Lihat Detail">
+                <Link href={`/dashboard/purchase-order/${item.id}`}>
+                  <Button type="primary" className="flex p-1 justify-center items-center">
+                    <FaInfoCircle size={18} />
+                  </Button>
+                </Link>
+              </Tooltip>
+              <Tooltip title="Cetak PO">
+                <Button
+                  onClick={() => fetchDetailPembelian(item.id)}
+                  type="primary"
+                  className="flex p-1 justify-center items-center"
+                >
+                  <FaPrint size={18} />
+                </Button>
+              </Tooltip>
+              <Tooltip title="Pembayaran">
+                <Button
+                  onClick={() => redirectPembayaran(item.id)}
+                  type="primary"
+                  className="flex p-1 justify-center items-center"
+                >
+                  <MdPayment size={18} />
+                </Button>
+              </Tooltip>
+            </div>
+          }
+        >
+          <Button>
+            <MenuOutlined className="cursor-pointer" />
+          </Button>
+        </Popover>
       ),
     },
   ];
@@ -266,71 +313,6 @@ export default function PurchaseOrder({ notificationApi }: Props) {
     }
   };
 
-  const DetailPembelian = ({ pembelian }: { pembelian: Pembelian }) => {
-    console.log(pembelian);
-    const descriptionPelanggan: DescriptionsProps["items"] = [
-      {
-        label: "Nama",
-        span: 2,
-        children: pembelian?.pelanggan?.nama,
-      },
-      {
-        label: "Nama Merchant",
-        span: 1,
-        children: pembelian?.pelanggan?.nama_merchant,
-      },
-      {
-        label: "Nomor Telepon",
-        span: 1,
-        children: pembelian?.pelanggan?.telp,
-      },
-      {
-        label: "Provinsi",
-        children: pembelian?.pelanggan?.provinsi,
-      },
-      {
-        label: "Kota",
-        children: pembelian?.pelanggan?.kota,
-      },
-      {
-        label: "Kecamatan",
-        children: pembelian?.pelanggan?.kecamatan,
-      },
-      {
-        label: "Kelurahan",
-        children: pembelian?.pelanggan?.kelurahan,
-      },
-      {
-        label: "Alamat",
-        children: pembelian?.pelanggan?.alamat,
-        span: 4,
-      },
-      {
-        label: "Sales",
-        children: pembelian?.user?.nama,
-        span: 2,
-      },
-      {
-        label: "Telepon Sales",
-        children: pembelian?.user?.phone,
-        span: 2,
-      },
-    ];
-
-    return (
-      <div>
-        <Descriptions
-          contentStyle={{ backgroundColor: "#FFF" }}
-          size="small"
-          column={4}
-          bordered
-          title="Detail Pelanggan"
-          items={descriptionPelanggan}
-        />
-      </div>
-    );
-  };
-
   return (
     <>
       <Modal
@@ -399,10 +381,6 @@ export default function PurchaseOrder({ notificationApi }: Props) {
               //   type: "checkbox",
               //   ...rowSelection,
               // }}
-              expandable={{
-                expandedRowRender: (record) => <DetailPembelian pembelian={record} />,
-                expandedRowClassName: () => "bg-white",
-              }}
               rowKey={(item) => item.id}
               size="small"
               rootClassName={`rounded-md ${inria.className} `}
