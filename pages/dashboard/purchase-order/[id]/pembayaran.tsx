@@ -43,9 +43,7 @@ export default function pembayaran({ id, notificationApi }: Props) {
 
     if (data?.riwayat_pembayaran.length === 0) return;
 
-    const reversed: RiwayatPembayaran[] = [...data.riwayat_pembayaran].reverse();
-
-    return reversed;
+    return data.riwayat_pembayaran;
   }, [data]);
 
   const handleVerifPembayaran = (pembayaran_id: string) => {

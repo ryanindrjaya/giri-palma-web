@@ -192,7 +192,6 @@ export default function TambahPO({ notificationApi }: Props) {
     {
       title: "Jumlah",
       render: (_v, item, index) => {
-        console.log(item);
         return (
           <>
             <Form.Item
@@ -264,7 +263,6 @@ export default function TambahPO({ notificationApi }: Props) {
     });
 
     if (newDetail?.length === 0) {
-      console.log("masuk cek new detail");
       setIsFullfilled(false);
       return;
     }
@@ -272,16 +270,13 @@ export default function TambahPO({ notificationApi }: Props) {
     const isQuantityZero = detail?.some((item: any) => item.quantity === 0);
 
     if (isQuantityZero) {
-      console.log("masuk cek quantity");
       setIsFullfilled(false);
       return;
     }
 
     if (allValues.pesanan_id && allValues.pelanggan_id && allValues.user_id) {
-      console.log("masuk cek all value");
       setIsFullfilled(true);
     } else {
-      console.log("masuk cek all value else");
       setIsFullfilled(false);
     }
   };

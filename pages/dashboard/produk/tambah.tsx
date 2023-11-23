@@ -96,8 +96,6 @@ export default function TambahProduk({ notificationApi }: Props) {
           placement: "topRight",
         });
       });
-
-    console.log(resUpload);
   };
 
   const filterOption = (input: string, option?: { label: string; value: string }) =>
@@ -252,11 +250,6 @@ export default function TambahProduk({ notificationApi }: Props) {
 
               const newDetailFullset = [...detailFullset, { tipe: "Fullset", ukuran: value, harga: undefined }];
               const newDetailMatras = [...detailMatras, { tipe: "Matras Only", ukuran: value, harga: undefined }];
-
-              console.log({
-                detail_fullset: newDetailFullset,
-                detail_matras: newDetailMatras,
-              });
 
               form.setFieldsValue({
                 detail_fullset: newDetailFullset,

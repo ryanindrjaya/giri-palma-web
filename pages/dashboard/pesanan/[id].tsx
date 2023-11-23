@@ -196,9 +196,13 @@ export default function DetailPesanan({ id }: Props) {
       title: "Produk",
       render: (_v, item) => (
         <a target="_blank" href={`/dashboard/produk?id=${item?.produk_id}`}>
-          Produk
+          {item.produk.nama} ({item.produk_detail.tipe})
         </a>
       ),
+    },
+    {
+      title: "Ukuran",
+      dataIndex: ["produk_detail", "ukuran"],
     },
     {
       title: "Harga",
@@ -244,7 +248,7 @@ export default function DetailPesanan({ id }: Props) {
     return (
       <>
         <Table.Summary.Row>
-          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} className=" font-bold">
             Total
           </Table.Summary.Cell>
@@ -253,7 +257,7 @@ export default function DetailPesanan({ id }: Props) {
           </Table.Summary.Cell>
         </Table.Summary.Row>
         <Table.Summary.Row>
-          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} className=" font-bold">
             Uang Muka (DP)
           </Table.Summary.Cell>
@@ -262,7 +266,7 @@ export default function DetailPesanan({ id }: Props) {
           </Table.Summary.Cell>
         </Table.Summary.Row>
         <Table.Summary.Row>
-          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} className="bg-primary text-white font-bold">
             Sisa Pembayaran
           </Table.Summary.Cell>

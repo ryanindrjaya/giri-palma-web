@@ -191,7 +191,6 @@ export default function Dashboard({ notificationApi }: Props) {
 
       get(body)
         .then((data) => {
-          console.log(data);
           setData(data.data);
           setLoading(false);
         })
