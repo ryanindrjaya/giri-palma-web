@@ -11,11 +11,25 @@ export interface Pembelian {
   uang_muka: number;
   total: number;
   sisa_pembayaran: number;
+  riwayat_pembayaran: RiwayatPembayaran[];
   catatan: string;
   created_at: string;
   updated_at: string;
   pelanggan: Pelanggan;
   user: User;
+}
+
+export interface RiwayatPembayaran {
+  id: string;
+  tanggal_bayar: string;
+  nomor_pembayaran: string;
+  metode_bayar: string;
+  kode_bayar: any;
+  nilai_bayar: number;
+  created_at: string;
+  updated_at: string;
+  is_confirmed: boolean;
+  is_paid: boolean;
 }
 
 export interface DetailPembelian {

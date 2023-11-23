@@ -1,5 +1,5 @@
 import DashboardLayout, { inria } from "@/layout/dashboard.layout";
-import { Button, Descriptions, DescriptionsProps, Input, Modal, Popconfirm, Table, Tag, Tooltip } from "antd";
+import { Button, Descriptions, DescriptionsProps, Input, Modal, Popconfirm, Select, Table, Tag, Tooltip } from "antd";
 import { GiSettingsKnobs } from "react-icons/gi";
 import { AiOutlinePlus } from "react-icons/ai";
 import React, { useState, useEffect, useRef } from "react";
@@ -11,7 +11,7 @@ import useDebounce from "@/hooks/useDebounce";
 import useMutation from "@/hooks/useMutation";
 import { useRouter } from "next/router";
 import { NotificationInstance } from "antd/es/notification/interface";
-
+import { MdPayment } from "react-icons/md";
 import { FaInfoCircle, FaPrint } from "react-icons/fa";
 import { parseHarga } from "@/lib/helpers/parseNumber";
 import { DetailPembelian, Pembelian, PembelianDetail } from "@/types/pembelian.type";
@@ -40,6 +40,51 @@ export default function PurchaseOrder({ notificationApi }: Props) {
   const [pembelianDetail, setPembelianDetail] = useState<DetailPembelian | null>(null);
   const printRef = useRef(null);
 
+  const statusOptions = [
+    {
+      value: "Dipesan",
+      label: (
+        <Tag
+          style={{
+            color: PESANAN_TEXT_COLOR["Dipesan"],
+          }}
+          color={PESANAN_COLOR["Dipesan"]}
+          className="flex gap-1 items-center w-fit"
+        >
+          <span className=" font-bold">Dipesan</span>
+        </Tag>
+      ),
+    },
+    {
+      value: "Dikirim",
+      label: (
+        <Tag
+          style={{
+            color: PESANAN_TEXT_COLOR["Dikirim"],
+          }}
+          color={PESANAN_COLOR["Dikirim"]}
+          className="flex gap-1 items-center w-fit"
+        >
+          <span className=" font-bold">Dikirim</span>
+        </Tag>
+      ),
+    },
+    {
+      value: "Diterima",
+      label: (
+        <Tag
+          style={{
+            color: PESANAN_TEXT_COLOR["Diterima"],
+          }}
+          color={PESANAN_COLOR["Diterima"]}
+          className="flex gap-1 items-center w-fit"
+        >
+          <span className=" font-bold">Diterima</span>
+        </Tag>
+      ),
+    },
+  ];
+
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
     pageStyle: "@page { size: A5 landscape; margin: 2mm; }",
@@ -52,6 +97,10 @@ export default function PurchaseOrder({ notificationApi }: Props) {
       refetch();
     }
   }, [debouncedSearchVal]);
+
+  const redirectPembayaran = (id: string) => {
+    router.push(`/dashboard/purchase-order/${id}/pembayaran`);
+  };
 
   const columns: ColumnsType<Pembelian> = [
     {
@@ -78,15 +127,12 @@ export default function PurchaseOrder({ notificationApi }: Props) {
         const status: string = item.status;
 
         return (
-          <Tag
-            style={{
-              color: PESANAN_TEXT_COLOR[status as keyof typeof PESANAN_TEXT_COLOR],
-            }}
-            color={PESANAN_COLOR[status as keyof typeof PESANAN_COLOR]}
-            className="flex gap-1 items-center w-fit"
-          >
-            <span className=" font-bold">{status}</span>
-          </Tag>
+          <Select
+            loading={loadingEdit}
+            defaultValue={status}
+            onChange={(v) => changeStatus(item.id, v)}
+            options={statusOptions}
+          />
         );
       },
     },
@@ -131,6 +177,15 @@ export default function PurchaseOrder({ notificationApi }: Props) {
               <FaPrint size={18} />
             </Button>
           </Tooltip>
+          <Tooltip title="Pembayaran">
+            <Button
+              onClick={() => redirectPembayaran(item.id)}
+              type="primary"
+              className="flex p-1 justify-center items-center"
+            >
+              <MdPayment size={18} />
+            </Button>
+          </Tooltip>
         </div>
       ),
     },
@@ -140,6 +195,20 @@ export default function PurchaseOrder({ notificationApi }: Props) {
     onChange: (selectedRowKeys: React.Key[], selectedRows: Pembelian[]) => {
       setSelectedRow(selectedRows);
     },
+  };
+
+  const changeStatus = async (id: string, status: string) => {
+    const body = {
+      status,
+    };
+
+    editPembelian(body, id).catch((error) => {
+      notificationApi.error({
+        message: "Gagal mengubah status pembelian",
+        description: error?.response?.data?.message || "Gagal mengubah status pembelian",
+        placement: "topRight",
+      });
+    });
   };
 
   const fetchDetailPembelian = async (id: string) => {

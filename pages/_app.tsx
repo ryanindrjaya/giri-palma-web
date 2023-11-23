@@ -5,6 +5,7 @@ import type { AppProps } from "next/app";
 import NextNProgress from "nextjs-progressbar";
 import "dayjs/locale/id";
 import dayjs from "dayjs";
+import { colors } from "@/lib/constant/colors";
 
 dayjs.locale("id");
 
@@ -14,7 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ConfigProvider theme={themeConfig}>
       {contextHolder}
-      <NextNProgress color="#7cb4c3" />
+      <NextNProgress color={colors.primary} />
       <Component {...pageProps} notificationApi={api} />;
     </ConfigProvider>
   );

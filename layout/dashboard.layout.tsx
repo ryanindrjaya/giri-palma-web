@@ -58,6 +58,11 @@ export default function DashboardLayout({ children, title, header, isLoading, ov
           label: "Lokasi Produk",
           onClick: () => router.push("/dashboard/lokasi"),
         },
+        {
+          key: "kategori-produk",
+          label: "Kategori Produk",
+          onClick: () => router.push("/dashboard/kategori-produk"),
+        },
       ],
     },
     {

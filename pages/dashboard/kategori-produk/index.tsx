@@ -2,7 +2,7 @@ import useDebounce from "@/hooks/useDebounce";
 import useMutation from "@/hooks/useMutation";
 import useQuery from "@/hooks/useQuery";
 import DashboardLayout from "@/layout/dashboard.layout";
-import { LokasiProduk } from "@/types/produk.type";
+import { KategoriProduk } from "@/types/produk.type";
 import { Button, Form, Input, Modal, Popconfirm, Table } from "antd";
 import { NotificationInstance } from "antd/es/notification/interface";
 import { ColumnsType } from "antd/es/table";
@@ -19,31 +19,32 @@ export default function Lokasi({ notificationApi }: Props) {
   const [form] = Form.useForm();
   const [searchVal, setSearchVal] = useState<string>("");
   const debouncedSearchVal = useDebounce(searchVal, 500);
-  const [selectedRow, setSelectedRow] = useState<LokasiProduk[]>([]);
+  const [selectedRow, setSelectedRow] = useState<KategoriProduk[]>([]);
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [selectedData, setSelectedData] = useState<LokasiProduk | null>(null);
+  const [selectedData, setSelectedData] = useState<KategoriProduk | null>(null);
 
-  const { data, loading, error, refetch } = useQuery<LokasiProduk[]>("/api/admin/lokasi-produk");
-  const [editLokasi, { loading: loadingEdit }] = useMutation("/api/admin/lokasi-produk", "put", {
+  const { data, loading, error, refetch } = useQuery<KategoriProduk[]>("/api/admin/kategori");
+  const [editKategori, { loading: loadingEdit }] = useMutation("/api/admin/kategori", "put", {
     onSuccess: () => {
       form.resetFields();
       setOpenModal(false);
+      setSelectedData(null);
       notificationApi.success({
         message: "Berhasil",
-        description: "Berhasil mengubah lokasi produk",
+        description: "Berhasil mengubah kategori produk",
         placement: "topRight",
       });
       refetch();
     },
   });
-  const [deleteLokasi, { loading: loadingDelete }] = useMutation("/api/admin/lokasi-produk", "delete");
-  const [postLokasi, { loading: loadingPost }] = useMutation("/api/admin/lokasi-produk", "post", {
+  const [deleteKategori, { loading: loadingDelete }] = useMutation("/api/admin/kategori", "delete");
+  const [postKategori, { loading: loadingPost }] = useMutation("/api/admin/kategori", "post", {
     onSuccess: () => {
       form.resetFields();
       setOpenModal(false);
       notificationApi.success({
         message: "Berhasil",
-        description: "Berhasil menambahkan lokasi produk",
+        description: "Berhasil menambahkan kategori produk",
         placement: "topRight",
       });
       refetch();
@@ -52,13 +53,13 @@ export default function Lokasi({ notificationApi }: Props) {
 
   const handleBulkDelete = async () => {
     try {
-      const promises = selectedRow.map((item) => deleteLokasi(undefined, item.id));
+      const promises = selectedRow.map((item) => deleteKategori(undefined, item.id));
       const resolved = await Promise.all(promises);
 
       if (resolved.every((item) => item.status === 200)) {
         notificationApi.success({
           message: "Berhasil",
-          description: "Berhasil menghapus lokasi produk",
+          description: "Berhasil menghapus kategori produk",
           placement: "topRight",
         });
       }
@@ -69,13 +70,13 @@ export default function Lokasi({ notificationApi }: Props) {
       console.log(error);
       notificationApi.error({
         message: "Gagal",
-        description: error?.response?.data?.message || "Gagal menghapus lokasi produk",
+        description: error?.response?.data?.message || "Gagal menghapus kategori produk",
         placement: "topRight",
       });
     }
   };
 
-  const columns: ColumnsType<LokasiProduk> = [
+  const columns: ColumnsType<KategoriProduk> = [
     {
       key: "num",
       title: "#",
@@ -107,7 +108,7 @@ export default function Lokasi({ notificationApi }: Props) {
   ];
 
   const handleCreate = async (values: any) => {
-    postLokasi(values).catch((error) => {
+    postKategori(values).catch((error) => {
       notificationApi.error({
         message: "Gagal menambahkan lokasi",
         description: error?.response?.data?.message || "Gagal menambahkan lokasi",
@@ -117,7 +118,7 @@ export default function Lokasi({ notificationApi }: Props) {
   };
 
   const handleEdit = async (values: any) => {
-    editLokasi(values, selectedData?.id).catch((error) => {
+    editKategori(values, selectedData?.id).catch((error) => {
       notificationApi.error({
         message: "Gagal mengubah lokasi",
         description: error?.response?.data?.message || "Gagal mengubah lokasi",
@@ -127,7 +128,7 @@ export default function Lokasi({ notificationApi }: Props) {
   };
 
   const rowSelection = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: LokasiProduk[]) => {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: KategoriProduk[]) => {
       setSelectedRow(selectedRows);
     },
   };
@@ -145,7 +146,7 @@ export default function Lokasi({ notificationApi }: Props) {
   return (
     <>
       <Modal
-        title={selectedData ? "Ubah Lokasi" : "Tambah Lokasi"}
+        title={selectedData ? "Ubah Kategori" : "Tambah Kategori"}
         okText={selectedData ? "Ubah" : "Tambah"}
         cancelText="Batal"
         open={openModal}
@@ -175,12 +176,12 @@ export default function Lokasi({ notificationApi }: Props) {
         </Form>
       </Modal>
       <DashboardLayout
-        title="Lokasi Produk"
+        title="Kategori Produk"
         isLoading={loading}
         header={
           <div className="w-full flex justify-between items-center">
             <div className="flex gap-2">
-              <Input.Search onChange={(e) => setSearchVal(e.target.value)} placeholder="Cari lokasi" />
+              <Input.Search onChange={(e) => setSearchVal(e.target.value)} placeholder="Cari kategori" />
               <Button className="px-2 flex items-center border border-gray-400 rounded-md bg-white cursor-pointer">
                 <GiSettingsKnobs size={18} />
               </Button>
@@ -213,7 +214,7 @@ export default function Lokasi({ notificationApi }: Props) {
             >
               <div className="flex items-center gap-2">
                 <AiOutlinePlus size={18} />
-                <span>Tambah Lokasi</span>
+                <span>Tambah Kategori</span>
               </div>
             </Button>
           </div>
