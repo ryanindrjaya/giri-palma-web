@@ -16,7 +16,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <ConfigProvider theme={themeConfig}>
       {contextHolder}
       <NextNProgress color={colors.primary} />
-      <Component {...pageProps} notificationApi={api} />;
+      <Component {...pageProps} notificationApi={api} />
     </ConfigProvider>
   );
 }
