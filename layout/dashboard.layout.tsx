@@ -8,6 +8,7 @@ import { MdOutlineDashboard } from "react-icons/md";
 import { FiTruck, FiUsers } from "react-icons/fi";
 import { BsBasket } from "react-icons/bs";
 import { AiOutlineTag } from "react-icons/ai";
+import { CiBoxes } from "react-icons/ci";
 import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import Cookies from "js-cookie";
 import SkeletonTable from "@/components/SkeletonTable";
@@ -43,7 +44,7 @@ export default function DashboardLayout({ children, title, header, isLoading, ov
       onClick: () => router.push("/dashboard/pelanggan"),
     },
     {
-      key: "produk",
+      key: "produk-menu",
       icon: <BsBasket />,
       className: inria.className,
       label: "Produk",
@@ -53,6 +54,7 @@ export default function DashboardLayout({ children, title, header, isLoading, ov
           label: "Daftar Produk",
           onClick: () => router.push("/dashboard/produk"),
         },
+
         {
           key: "lokasi",
           label: "Lokasi Produk",
@@ -64,6 +66,13 @@ export default function DashboardLayout({ children, title, header, isLoading, ov
           onClick: () => router.push("/dashboard/kategori-produk"),
         },
       ],
+    },
+    {
+      key: "inventory",
+      icon: <CiBoxes />,
+      label: "Inventory",
+      className: inria.className,
+      onClick: () => router.push("/dashboard/inventory"),
     },
     {
       key: "pesanan",
