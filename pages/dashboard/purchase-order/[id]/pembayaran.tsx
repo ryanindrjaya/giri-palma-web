@@ -131,7 +131,7 @@ export default function pembayaran({ id, notificationApi }: Props) {
   ];
 
   return (
-    <DashboardLayout overrideBreadcrumb={data?.nomor_pembelian || "Detail"} title="Riwayat Pembayaran">
+    <DashboardLayout overrideDetailId={data?.nomor_pembelian || "Detail"} title="Riwayat Pembayaran">
       <Table bordered size="small" loading={loading} dataSource={pembayaran} columns={columns} rowKey="id" />
     </DashboardLayout>
   );

@@ -20,12 +20,20 @@ type Props = {
   header?: React.ReactNode;
   isLoading?: boolean;
   overrideBreadcrumb?: string | null;
+  overrideDetailId?: string | null;
 };
 
 const { Content, Footer, Sider } = Layout;
 export const inria = Inria_Sans({ subsets: ["latin"], weight: ["300", "400", "700"] });
 
-export default function DashboardLayout({ children, title, header, isLoading, overrideBreadcrumb }: Props) {
+export default function DashboardLayout({
+  children,
+  title,
+  header,
+  isLoading,
+  overrideBreadcrumb,
+  overrideDetailId,
+}: Props) {
   const router = useRouter();
 
   const items: MenuProps["items"] = [
@@ -97,13 +105,11 @@ export default function DashboardLayout({ children, title, header, isLoading, ov
       title:
         index === arr.length - 1 ? (
           <span className={`text-black ${inria.className}`}>
-            {overrideBreadcrumb && !(item?.split("-").length > 3)
-              ? overrideBreadcrumb
-              : capitalize(item?.split("?")?.[0]?.replace(/-/g, " ") || item)}
+            {overrideBreadcrumb ? overrideBreadcrumb : capitalize(item?.split("?")?.[0]?.replace(/-/g, " ") || item)}
           </span>
         ) : (
           <a className={`text-blue-500 ${inria.className}`} href={arr.slice(0, index + 1).join("/")}>
-            {item?.split("-").length > 3 ? overrideBreadcrumb : capitalize(item)}
+            {overrideDetailId ? overrideDetailId : capitalize(item)}
           </a>
         ),
     }))
