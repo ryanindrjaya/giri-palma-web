@@ -23,8 +23,12 @@ export interface User {
   tanggal_lahir: string;
   alamat: string;
   image_url: any;
-  role: string;
+  role: Role;
   created_at: string;
   updated_at: string;
   lokasi_id: string;
+}
+
+export interface Role {
+  name: string;
 }
