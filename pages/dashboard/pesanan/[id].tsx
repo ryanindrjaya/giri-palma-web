@@ -174,16 +174,12 @@ export default function DetailPesanan({ id }: Props) {
           },
           {
             label: "Termin Pembayaran",
-            children: `${data?.termin_pembayaran ? data?.termin_pembayaran / 14 : 0} Minggu`,
+            children: `${data?.termin_pembayaran ? data?.termin_pembayaran / 7 : 0} Minggu`,
             span: 2,
           },
           {
             label: "Pembayaran Per Minggu",
-            children: `Rp ${parseHarga(
-              data?.termin_pembayaran && data?.rentang_waktu_pembayaran
-                ? data?.total - (data?.uang_muka || 0) / (data?.rentang_waktu_pembayaran / data?.termin_pembayaran)
-                : 0
-            )}`,
+            children: `Rp ${parseHarga(data?.pembayaran_per_minggu || 0)}`,
             span: 2,
           },
         ]

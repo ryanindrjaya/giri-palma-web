@@ -19,6 +19,7 @@ export interface Pesanan {
   metode_bayar: string;
   rentang_waktu_pembayaran?: number; // in days
   termin_pembayaran?: number; // in days
+  pembayaran_per_minggu?: number;
   user: User;
 }
 
