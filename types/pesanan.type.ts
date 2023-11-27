@@ -9,6 +9,7 @@ export interface Pesanan {
   status: string;
   pesanan_detail: PesananDetail[];
   uang_muka: number;
+  uang_tukar_tambah: number;
   total: number;
   catatan: string;
   created_at: string;
