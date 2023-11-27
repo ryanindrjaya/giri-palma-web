@@ -109,7 +109,7 @@ export default function DashboardLayout({
           </span>
         ) : (
           <a className={`text-blue-500 ${inria.className}`} href={arr.slice(0, index + 1).join("/")}>
-            {overrideDetailId ? overrideDetailId : capitalize(item)}
+            {item?.split("-").length > 3 && overrideDetailId ? overrideDetailId : capitalize(item)}
           </a>
         ),
     }))
