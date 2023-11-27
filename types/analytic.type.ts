@@ -10,6 +10,19 @@ export interface Analytic {
   pesanan: Pesanan;
   pembelian: Pembelian;
   pelanggan: Pelanggan;
+  all_merchant: AllMerchant;
+  new_merchant: NewMerchant;
+}
+
+export interface AllMerchant {
+  total_new_merchant_transaction: number;
+  total_old_merchant_transaction: number;
+  detail: any;
+}
+
+export interface NewMerchant {
+  total_new_merchant_transaction: number;
+  detail: any[];
 }
 
 export interface Pesanan {

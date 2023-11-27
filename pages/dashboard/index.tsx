@@ -180,9 +180,15 @@ export default function Dashboard({ notificationApi }: Props) {
   useEffect(() => {
     if (option) {
       setLoading(true);
-      const startDate =
+      let startDate =
         option === "daily" ? dayjs().startOf("week").toISOString() : dayjs().startOf("month").toISOString();
-      const endDate = option === "daily" ? dayjs().endOf("week").toISOString() : dayjs().endOf("month").toISOString();
+      let endDate = option === "daily" ? dayjs().endOf("week").toISOString() : dayjs().endOf("month").toISOString();
+
+      // if option daily and its the last week of the month then set the end date to the last day of the month
+      if (option === "daily" && dayjs().endOf("month").diff(dayjs().add(7, "day"), "months") === 0) {
+        endDate = dayjs().endOf("month").toISOString();
+      }
+
       const body: AnalyticRequest = {
         option,
         started_time: startDate,
