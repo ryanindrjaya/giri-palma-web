@@ -30,5 +30,5 @@ export interface User {
 }
 
 export interface Role {
-  name: string;
+  nama: string;
 }

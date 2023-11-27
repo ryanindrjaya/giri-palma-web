@@ -16,7 +16,7 @@ export default function Login() {
 
   const [login, { loading }] = useMutation<LoginRequest, LoginResponse>("/api/admin/login", "post", {
     onSuccess: (data) => {
-      if (data.data.user.role.name !== "Admin") {
+      if (data.data.user.role.nama !== "Admin") {
         api.error({
           message: "Tidak diizinkan",
           description: "Anda tidak memiliki akses ke halaman ini",
