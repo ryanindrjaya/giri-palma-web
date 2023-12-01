@@ -25,7 +25,7 @@ export default function Dashboard({ notificationApi }: Props) {
   const [option, setOption] = useState<string>("daily");
   const [data, setData] = useState<Analytic | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [get] = useMutation<Analytic, AnalyticRequest>("/api/admin/analytics/dashboard", "post");
+  const [get, { error }] = useMutation<Analytic, AnalyticRequest>("/api/admin/analytics/dashboard", "post");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -185,9 +185,9 @@ export default function Dashboard({ notificationApi }: Props) {
       let endDate = option === "daily" ? dayjs().endOf("week").toISOString() : dayjs().endOf("month").toISOString();
 
       // if option daily and its the last week of the month then set the end date to the last day of the month
-      if (option === "daily" && dayjs().endOf("month").diff(dayjs().add(7, "day"), "months") === 0) {
-        endDate = dayjs().endOf("month").toISOString();
-      }
+      // if (option === "daily" && dayjs().endOf("month").diff(dayjs().add(7, "day"), "months") === 0) {
+      //   endDate = dayjs().endOf("month").toISOString();
+      // }
 
       const body: AnalyticRequest = {
         option,
@@ -229,6 +229,14 @@ export default function Dashboard({ notificationApi }: Props) {
 
     return column;
   }, [data]);
+
+  if (error) {
+    return (
+      <DashboardLayout title="Dashboard" isLoading={loading}>
+        <p className="text-xl font-bold">Terjadi kesalahan</p>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout title="Dashboard" isLoading={loading}>

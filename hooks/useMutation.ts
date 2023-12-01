@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
 import fetcher from "@/lib/axios";
 import Cookies from "js-cookie";
+import { useRouter } from "next/router";
 
 type HttpMethod = "post" | "put" | "delete";
 
@@ -20,6 +21,7 @@ type Config<T, R> = {
 };
 
 function useMutation<T, R>(uri: string, method: HttpMethod, config?: Config<T, R>): UseMutationResult<T> {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AxiosError<T> | null>(null);
 
@@ -57,6 +59,14 @@ function useMutation<T, R>(uri: string, method: HttpMethod, config?: Config<T, R
         return response;
       }
     } catch (error: any) {
+      if (error.response?.status === 401) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("user");
+        }
+        Cookies.remove("jwt");
+        router.replace("/");
+      }
+
       setLoading(false);
       setError(error);
 

@@ -1,7 +1,7 @@
 export const colors = {
-  primary: "#7cb4c3",
+  primary: "#9870b1",
   secondary: "#A97C50",
-  info: "#7cb4c3",
+  info: "#9870b1",
   error: "#ff8a8a",
   success: "#97d895",
 };
