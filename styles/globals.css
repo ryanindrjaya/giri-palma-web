@@ -12,3 +12,15 @@ span {
   display: inline-flex;
   align-items: center;
 }
+
+.ant-descriptions-item-content span {
+  width: 100%;
+}
+
+.ant-select-selection-item-content {
+  overflow: unset !important;
+}
+
+.ant-select-selection-overflow {
+  gap: 8px;
+}

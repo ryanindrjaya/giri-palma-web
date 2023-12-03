@@ -12,9 +12,11 @@ interface QueryResult<T> {
 
 interface ConfigQuery {
   params?: any;
+  trigger?: boolean;
 }
 
 function useQuery<T>(uri: string, config?: ConfigQuery): QueryResult<T> {
+  const [trigger] = useState<boolean>(config?.trigger ?? true);
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<AxiosError | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -38,8 +40,10 @@ function useQuery<T>(uri: string, config?: ConfigQuery): QueryResult<T> {
   }
 
   useEffect(() => {
-    fetchData();
-  }, [uri]);
+    if (trigger) {
+      fetchData();
+    }
+  }, [uri, trigger]);
 
   return { data, error, loading, refetch: fetchData };
 }

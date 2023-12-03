@@ -13,7 +13,7 @@ export interface Produk {
   updated_at: string;
   default_price: number;
   produk_detail: ProdukDetail[];
-  lokasi_produk: LokasiProduk;
+  lokasi_produk: LokasiProduk[];
   kategori_produk: KategoriProduk;
 }
 

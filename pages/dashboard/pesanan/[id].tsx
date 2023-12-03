@@ -6,9 +6,10 @@ import { Pesanan, PesananDetail } from "@/types/pesanan.type";
 import { Descriptions, DescriptionsProps, Image, Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { PESANAN_COLOR, PESANAN_TEXT_COLOR } from ".";
 import { capitalize } from "@/lib/helpers/capitalize";
+import ProdukModal from "@/components/ProdukModal";
 
 export async function getServerSideProps(context: any) {
   const { id } = context.params;
@@ -23,6 +24,7 @@ type Props = { id: string };
 
 export default function DetailPesanan({ id }: Props) {
   const { data, loading, error } = useQuery<Pesanan>(`/api/admin/pesanan/${id}`);
+  const [produkId, setProdukId] = useState<string | null>(null);
 
   if (loading) {
     <DashboardLayout title={"Memuat..."}>
@@ -115,7 +117,7 @@ export default function DetailPesanan({ id }: Props) {
     {
       label: "Status Pembayaran",
       children: (
-        <Tag color={color} className="flex gap-1 items-center w-fit">
+        <Tag color={color} className="flex gap-1 items-center justify-center w-fit">
           {data?.status_pembayaran}
         </Tag>
       ),
@@ -128,9 +130,10 @@ export default function DetailPesanan({ id }: Props) {
           style={{
             color: PESANAN_TEXT_COLOR[data?.status as keyof typeof PESANAN_TEXT_COLOR],
           }}
+          className="flex gap-1 font-bold items-center justify-center w-fit"
           color={PESANAN_COLOR[data?.status as keyof typeof PESANAN_COLOR]}
         >
-          <span className=" font-bold">{data?.status}</span>
+          {data?.status}
         </Tag>
       ),
       span: 2,
@@ -196,9 +199,12 @@ export default function DetailPesanan({ id }: Props) {
     {
       title: "Produk",
       render: (_v, item) => (
-        <a target="_blank" href={`/dashboard/produk?id=${item?.produk_id}`}>
+        <span
+          className="text-blue-500 cursor-pointer hover:text-blue-400 transition-all duration-100"
+          onClick={() => setProdukId(item.produk_id)}
+        >
           {item.produk.nama} ({item.produk_detail.tipe})
-        </a>
+        </span>
       ),
     },
     {
@@ -281,6 +287,8 @@ export default function DetailPesanan({ id }: Props) {
 
   return (
     <DashboardLayout overrideBreadcrumb={data?.nomor_pesanan} title={"Detail Pesanan"}>
+      <ProdukModal open={!!produkId} onClose={() => setProdukId(null)} produkId={produkId || ""} />
+
       <Descriptions size="small" column={4} bordered title="Pesanan" items={descriptionPesanan} />
       <div className="h-4" />
       {data?.tukar_tambah

@@ -53,8 +53,18 @@ export default function Produk({ notificationApi }: Props) {
     },
     {
       title: "Lokasi",
-      dataIndex: ["lokasi_produk", "nama"],
       key: "nama",
+      render: (_v, item) => {
+        const lokasi = item?.lokasi_produk || [];
+
+        return (
+          <ul className="m-0 pl-5">
+            {lokasi.map((item) => (
+              <li key={item.id}>{item.nama}</li>
+            ))}
+          </ul>
+        );
+      },
     },
     {
       title: "Kode",
@@ -206,32 +216,30 @@ export default function Produk({ notificationApi }: Props) {
         </div>
       }
     >
+      <ProdukModal refetch={refetch} open={!!produkId} onClose={() => setProdukId(null)} produkId={produkId || ""} />
       {loading ? (
         <SkeletonTable />
       ) : (
-        <>
-          <ProdukModal open={!!produkId} onClose={() => setProdukId(null)} produkId={produkId || ""} />
-          <Table
-            bordered
-            rowSelection={{
-              type: "checkbox",
-              ...rowSelection,
-            }}
-            onRow={(record) => {
-              return {
-                onClick: () => {
-                  setProdukId(record.id);
-                },
-              };
-            }}
-            rowKey={(item) => item.id}
-            size="small"
-            rootClassName={`rounded-md ${inria.className} `}
-            columns={columns}
-            rowClassName={`${inria.className} cursor-pointer`}
-            dataSource={data || []}
-          />
-        </>
+        <Table
+          bordered
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+          }}
+          onRow={(record) => {
+            return {
+              onClick: () => {
+                setProdukId(record.id);
+              },
+            };
+          }}
+          rowKey={(item) => item.id}
+          size="small"
+          rootClassName={`rounded-md ${inria.className} `}
+          columns={columns}
+          rowClassName={`${inria.className} cursor-pointer`}
+          dataSource={data || []}
+        />
       )}
     </DashboardLayout>
   );

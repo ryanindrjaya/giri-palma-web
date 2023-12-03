@@ -1,3 +1,4 @@
+import ProdukModal from "@/components/ProdukModal";
 import useMutation from "@/hooks/useMutation";
 import useQuery from "@/hooks/useQuery";
 import DashboardLayout from "@/layout/dashboard.layout";
@@ -42,6 +43,7 @@ export default function Inventory({ notificationApi }: Props) {
   });
 
   const [searchVal, setSearchVal] = useState<string>("");
+  const [produkId, setProdukId] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<Inventory[]>([]);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedData, setSelectedData] = useState<Inventory | null>(null);
@@ -56,9 +58,12 @@ export default function Inventory({ notificationApi }: Props) {
     {
       title: "Produk",
       render: (text, record) => (
-        <Link target="_blank" href={`/dashboard/produk?id=${record.produk.id}`}>
-          {record.produk.nama}
-        </Link>
+        <span
+          className="text-blue-500 cursor-pointer hover:text-blue-400 transition-all duration-100"
+          onClick={() => setProdukId(record.produk.id)}
+        >
+          {record.produk.nama})
+        </span>
       ),
     },
     {
@@ -140,6 +145,8 @@ export default function Inventory({ notificationApi }: Props) {
 
   return (
     <>
+      <ProdukModal open={!!produkId} onClose={() => setProdukId(null)} produkId={produkId || ""} />
+
       <Modal
         okText="Ubah"
         cancelText="Batal"
