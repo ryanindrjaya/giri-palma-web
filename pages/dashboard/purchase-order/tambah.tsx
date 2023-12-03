@@ -518,7 +518,7 @@ export default function TambahPO({ notificationApi }: Props) {
                 <Select options={parseToOption(["Dipesan", "Dikirim", "Diterima"])} />
               )}
             </Form.Item>
-            <Form.Item rules={requiredRule} label="Catatan" name="catatan" className="col-span-2">
+            <Form.Item label="Catatan" name="catatan" className="col-span-2">
               {loading ? <Skeleton.Input block active /> : <Input.TextArea rows={1} />}
             </Form.Item>
             <Form.Item
