@@ -157,21 +157,23 @@ export default function Pesanan({ notificationApi }: Props) {
             </Link>
           </Tooltip>
           {!item.paired ? (
-            <Popconfirm
-              disabled={item.paired}
-              okText="Ya"
-              cancelText="Tidak"
-              onConfirm={() => router.push(`/dashboard/purchase-order/tambah?ref=${item.id}`)}
-              title={`Jadikan pesanan ${item.nomor_pesanan} menjadi PO?`}
-              description="Apakah anda yakin ingin meneruskan status pesanan menjadi PO?"
-              trigger="click"
-              className={`${item.status === "Dipesan" ? "block" : "hidden"}`}
-              placement="left"
-            >
-              <Button type="primary" disabled={item.paired} className="flex p-1 justify-center items-center">
-                <BiPurchaseTag size={18} />
-              </Button>
-            </Popconfirm>
+            <Tooltip title="Jadikan PO">
+              <Popconfirm
+                disabled={item.paired}
+                okText="Ya"
+                cancelText="Tidak"
+                onConfirm={() => router.push(`/dashboard/purchase-order/tambah?ref=${item.id}`)}
+                title={`Jadikan pesanan ${item.nomor_pesanan} menjadi PO?`}
+                description="Apakah anda yakin ingin meneruskan status pesanan menjadi PO?"
+                trigger="click"
+                className={`${item.status === "Dipesan" ? "block" : "hidden"}`}
+                placement="left"
+              >
+                <Button type="primary" disabled={item.paired} className="flex p-1 justify-center items-center">
+                  <BiPurchaseTag size={18} />
+                </Button>
+              </Popconfirm>
+            </Tooltip>
           ) : null}
         </div>
       ),

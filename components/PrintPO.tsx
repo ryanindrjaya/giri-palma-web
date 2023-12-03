@@ -43,8 +43,8 @@ const PrintPO = React.forwardRef(({ data }: Props, ref: any) => {
       className={`border-black relative rounded-sm py-1 border-solid border`}
     >
       <img
-        className="w-1/3 opacity-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-        src="/images/logo_gp.png"
+        className="w-1/2 opacity-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        src="/images/logo_gp_full.png"
       />
       <div className="flex px-1">
         <div className="flex-[0.5] flex flex-col justify-center items-center">

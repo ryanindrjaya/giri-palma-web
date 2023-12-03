@@ -2,15 +2,18 @@ import SkeletonTable from "@/components/SkeletonTable";
 import useQuery from "@/hooks/useQuery";
 import DashboardLayout from "@/layout/dashboard.layout";
 import { parseHarga } from "@/lib/helpers/parseNumber";
-import { Button, Descriptions, DescriptionsProps, Table, Tag } from "antd";
+import { Button, Descriptions, DescriptionsProps, Modal, Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { PESANAN_COLOR, PESANAN_TEXT_COLOR } from "../../pesanan";
 import { DetailPembelian, PembelianDetail } from "@/types/pembelian.type";
 import { MdPayment } from "react-icons/md";
 import { useRouter } from "next/router";
 import ProdukModal from "@/components/ProdukModal";
+import PrintPO from "@/components/PrintPO";
+import { useReactToPrint } from "react-to-print";
+import { FaPrint } from "react-icons/fa";
 
 export async function getServerSideProps(context: any) {
   const { id } = context.params;
@@ -27,6 +30,8 @@ export default function DetailPesanan({ id }: Props) {
   const router = useRouter();
   const { data, loading, error } = useQuery<DetailPembelian>(`/api/admin/pembelian/${id}`);
   const [produkId, setProdukId] = React.useState<string | null>(null);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const printRef = useRef(null);
 
   if (loading) {
     <DashboardLayout title={"Memuat..."}>
@@ -133,8 +138,8 @@ export default function DetailPesanan({ id }: Props) {
     {
       label: "Status Pembayaran",
       children: (
-        <Tag color={color} className="flex gap-1 items-center justify-center w-fit">
-          {data?.status_pembayaran}
+        <Tag color={color} className="flex gap-1 items-center justify-center text-center w-fit">
+          <p className="text-center w-full flex-1 m-0">{data?.status_pembayaran}</p>
         </Tag>
       ),
       span: 2,
@@ -146,10 +151,10 @@ export default function DetailPesanan({ id }: Props) {
           style={{
             color: PESANAN_TEXT_COLOR[data?.status as keyof typeof PESANAN_TEXT_COLOR],
           }}
-          className="flex gap-1 items-center font-bold justify-center w-fit"
+          className="flex gap-1 items-center font-bold justify-center text-center w-fit"
           color={PESANAN_COLOR[data?.status as keyof typeof PESANAN_COLOR]}
         >
-          {data?.status}
+          <p className="text-center w-full flex-1 m-0">{data?.status}</p>
         </Tag>
       ),
       span: 2,
@@ -258,32 +263,56 @@ export default function DetailPesanan({ id }: Props) {
     router.push(`/dashboard/purchase-order/${id}/pembayaran`);
   };
 
-  return (
-    <DashboardLayout
-      header={
-        <div className="flex justify-end">
-          <Button icon={<MdPayment size={18} />} onClick={redirectToPembayaran} size="large" type="primary">
-            Pembayaran
-          </Button>
-        </div>
-      }
-      overrideBreadcrumb={data?.nomor_pembelian}
-      title={"Detail Pembelian"}
-    >
-      <ProdukModal open={!!produkId} onClose={() => setProdukId(null)} produkId={produkId || ""} />
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    pageStyle: "@page { size: A5 landscape; margin: 2mm; }",
+  });
 
-      <Descriptions size="small" column={4} bordered title="Pembelian" items={descriptionPesanan} />
-      <div className="h-4" />
-      <Descriptions size="small" column={4} bordered title="Detail Pelanggan" items={descriptionPelanggan} />
-      <p className="text-base font-bold">Detail Pembelian</p>
-      <Table
-        bordered
-        size="small"
-        rowKey={(item) => item.detail_id}
-        columns={detailColumns}
-        dataSource={data?.pembelian_detail}
-        summary={(data) => <Footer detail={data} />}
-      />
-    </DashboardLayout>
+  return (
+    <>
+      <Modal
+        open={openModal}
+        onOk={handlePrint}
+        onCancel={() => setOpenModal(false)}
+        okText="Cetak"
+        cancelText="Batal"
+        centered
+        title="Cetak Purchase Order"
+        width={1000}
+      >
+        <div className="w-full flex justify-center">
+          <PrintPO data={data} ref={printRef} />
+        </div>
+      </Modal>
+      <DashboardLayout
+        header={
+          <div className="flex gap-2 justify-end">
+            <Button icon={<FaPrint size={18} />} onClick={() => setOpenModal(true)} type="primary">
+              Cetak
+            </Button>
+            <Button icon={<MdPayment size={18} />} onClick={redirectToPembayaran} type="primary">
+              Pembayaran
+            </Button>
+          </div>
+        }
+        overrideBreadcrumb={data?.nomor_pembelian}
+        title={"Detail Pembelian"}
+      >
+        <ProdukModal open={!!produkId} onClose={() => setProdukId(null)} produkId={produkId || ""} />
+
+        <Descriptions size="small" column={4} bordered title="Pembelian" items={descriptionPesanan} />
+        <div className="h-4" />
+        <Descriptions size="small" column={4} bordered title="Detail Pelanggan" items={descriptionPelanggan} />
+        <p className="text-base font-bold">Detail Pembelian</p>
+        <Table
+          bordered
+          size="small"
+          rowKey={(item) => item.detail_id}
+          columns={detailColumns}
+          dataSource={data?.pembelian_detail}
+          summary={(data) => <Footer detail={data} />}
+        />
+      </DashboardLayout>
+    </>
   );
 }

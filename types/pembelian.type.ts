@@ -84,11 +84,14 @@ export interface PembelianDetail {
 }
 
 export interface CreatePembelian {
-  nomor_pembelian: string;
+  nomor_pembelian?: string;
   pesanan_id: string;
   pelanggan_id: string;
   user_id: string;
   pembelian_detail: CreatePembelianDetail[];
+  status: string;
+  status_pembayaran: string;
+  catatan: string;
 }
 
 export interface CreatePembelianDetail {

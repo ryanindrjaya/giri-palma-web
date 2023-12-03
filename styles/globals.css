@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --primary: #9870b1;
+}
+
 body {
   margin: 0;
 }
@@ -23,4 +27,9 @@ span {
 
 .ant-select-selection-overflow {
   gap: 8px;
+}
+
+.ant-table-thead tr .ant-table-cell {
+  background-color: var(--primary) !important;
+  color: white !important;
 }

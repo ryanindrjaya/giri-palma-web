@@ -3,13 +3,15 @@ import useQuery from "@/hooks/useQuery";
 import DashboardLayout from "@/layout/dashboard.layout";
 import { parseHarga } from "@/lib/helpers/parseNumber";
 import { Pesanan, PesananDetail } from "@/types/pesanan.type";
-import { Descriptions, DescriptionsProps, Image, Table, Tag } from "antd";
+import { Button, Descriptions, DescriptionsProps, Image, Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import React, { useMemo, useState } from "react";
 import { PESANAN_COLOR, PESANAN_TEXT_COLOR } from ".";
 import { capitalize } from "@/lib/helpers/capitalize";
 import ProdukModal from "@/components/ProdukModal";
+import { BiPurchaseTag } from "react-icons/bi";
+import { useRouter } from "next/router";
 
 export async function getServerSideProps(context: any) {
   const { id } = context.params;
@@ -23,6 +25,7 @@ export async function getServerSideProps(context: any) {
 type Props = { id: string };
 
 export default function DetailPesanan({ id }: Props) {
+  const router = useRouter();
   const { data, loading, error } = useQuery<Pesanan>(`/api/admin/pesanan/${id}`);
   const [produkId, setProdukId] = useState<string | null>(null);
 
@@ -118,7 +121,7 @@ export default function DetailPesanan({ id }: Props) {
       label: "Status Pembayaran",
       children: (
         <Tag color={color} className="flex gap-1 items-center justify-center w-fit">
-          {data?.status_pembayaran}
+          <p className="text-center w-full flex-1 m-0">{data?.status_pembayaran}</p>
         </Tag>
       ),
       span: 2,
@@ -133,7 +136,7 @@ export default function DetailPesanan({ id }: Props) {
           className="flex gap-1 font-bold items-center justify-center w-fit"
           color={PESANAN_COLOR[data?.status as keyof typeof PESANAN_COLOR]}
         >
-          {data?.status}
+          <p className="text-center w-full flex-1 m-0">{data?.status}</p>
         </Tag>
       ),
       span: 2,
@@ -286,7 +289,23 @@ export default function DetailPesanan({ id }: Props) {
   };
 
   return (
-    <DashboardLayout overrideBreadcrumb={data?.nomor_pesanan} title={"Detail Pesanan"}>
+    <DashboardLayout
+      overrideBreadcrumb={data?.nomor_pesanan}
+      title={"Detail Pesanan"}
+      header={
+        <div className="flex justify-end">
+          {!data?.paired ? (
+            <Button
+              icon={<BiPurchaseTag size={18} />}
+              onClick={() => router.push(`/dashboard/purchase-order/tambah?ref=${data?.id}`)}
+              type="primary"
+            >
+              Jadikan PO
+            </Button>
+          ) : null}
+        </div>
+      }
+    >
       <ProdukModal open={!!produkId} onClose={() => setProdukId(null)} produkId={produkId || ""} />
 
       <Descriptions size="small" column={4} bordered title="Pesanan" items={descriptionPesanan} />

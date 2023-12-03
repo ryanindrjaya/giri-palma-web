@@ -1,7 +1,7 @@
 import DashboardLayout from "@/layout/dashboard.layout";
 import fetcher from "@/lib/axios";
 import { CreatePembelian, CreatePembelianDetail } from "@/types/pembelian.type";
-import { Button, Form, Input, InputNumber, Select, Skeleton, Table } from "antd";
+import { Button, DatePicker, Form, Input, InputNumber, Select, Skeleton, Table } from "antd";
 import { NotificationInstance } from "antd/es/notification/interface";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -14,8 +14,24 @@ import { Pelanggan } from "@/types/pelanggan.type";
 import { User } from "@/types/login.type";
 import { ColumnsType } from "antd/es/table";
 import useMutation from "@/hooks/useMutation";
+import { FaRegEdit } from "react-icons/fa";
+import dayjs from "dayjs";
+import { parseHarga } from "@/lib/helpers/parseNumber";
+import { capitalize } from "@/lib/helpers/capitalize";
 type Props = {
   notificationApi: NotificationInstance;
+};
+
+type Summary = {
+  total: number;
+  uang_muka: number;
+  harga_tukar_tambah: number;
+  sisa_pembayaran: number;
+  metode_pembayaran: string;
+  nama_leasing?: string;
+  rentang_pembayaran?: number;
+  termin_pembayaran?: number;
+  pembayaran_per_minggu?: number;
 };
 
 export default function TambahPO({ notificationApi }: Props) {
@@ -29,6 +45,18 @@ export default function TambahPO({ notificationApi }: Props) {
   });
   const { data: pelanggan, loading: loadingPelanggan } = useQuery<Pelanggan[]>("/api/admin/pelanggan");
   const { data: user, loading: loadingUser } = useQuery<User[]>("/api/admin/user");
+
+  const [summary, setSummary] = useState<Summary>({
+    total: 0,
+    uang_muka: 0,
+    harga_tukar_tambah: 0,
+    sisa_pembayaran: 0,
+    metode_pembayaran: "",
+    nama_leasing: "",
+    rentang_pembayaran: 0,
+    termin_pembayaran: 0,
+    pembayaran_per_minggu: 0,
+  });
 
   const [createPO, { loading: loadingCreate }] = useMutation<CreatePembelian, any>("/api/admin/pembelian", "post", {
     onSuccess: (data) => {
@@ -76,11 +104,28 @@ export default function TambahPO({ notificationApi }: Props) {
           });
         });
 
-        const setFieldPesanan = {
+        const total = pembelianDetail.reduce((acc, item) => acc + (item?.subtotal || 0), 0);
+
+        setSummary({
+          total,
+          uang_muka: data?.uang_muka || 0,
+          harga_tukar_tambah: data?.uang_tukar_tambah || 0,
+          sisa_pembayaran: total - (data?.uang_muka || 0) - (data?.uang_tukar_tambah || 0),
+          metode_pembayaran: data?.metode_bayar || "",
+          nama_leasing: data?.nama_leasing || "",
+          rentang_pembayaran: data?.rentang_waktu_pembayaran || 0,
+          termin_pembayaran: data?.termin_pembayaran || 0,
+          pembayaran_per_minggu: data?.pembayaran_per_minggu || 0,
+        });
+
+        const setFieldPesanan: CreatePembelian = {
           pesanan_id: data.id,
           pelanggan_id: data.pelanggan?.id,
           user_id: data.user?.id,
           pembelian_detail: pembelianDetail,
+          catatan: data.catatan,
+          status: data.status,
+          status_pembayaran: data.status_pembayaran,
         };
 
         if (data?.id && data?.pelanggan?.id && data?.user?.id && pembelianDetail?.length > 0) {
@@ -162,7 +207,13 @@ export default function TambahPO({ notificationApi }: Props) {
 
   const columns: ColumnsType<CreatePembelianDetail> = [
     {
-      title: "Produk",
+      title: "No",
+      key: "index",
+      render: (_v, _item, index) => index + 1,
+      align: "center",
+    },
+    {
+      title: "Nama Produk",
       key: "produk",
       render: (_v, item, index) => (
         <>
@@ -185,9 +236,32 @@ export default function TambahPO({ notificationApi }: Props) {
       ),
     },
     {
-      title: "Detail Produk",
+      title: "Tipe & Ukuran",
       key: "detail_produk",
       render: (_v, item) => `${item.produk_detail?.tipe} (${item.produk_detail?.ukuran})`,
+    },
+    {
+      title: "Harga Jual",
+      key: "harga_jual",
+      render: (_v, item) => `Rp ${parseHarga(item.produk_detail?.harga || 0)}`,
+    },
+    {
+      key: "diskon",
+      title: "Diskon",
+      render: (_v, item, index) => (
+        <Form.Item noStyle name={["pembelian_detail", index, "diskon"]} initialValue={item.diskon}>
+          <InputNumber
+            className="w-full"
+            onFocus={(e) => e.target.select()}
+            onChange={(value) => {
+              item.diskon = value || 0;
+            }}
+            min={0}
+            max={100}
+            suffix="%"
+          />
+        </Form.Item>
+      ),
     },
     {
       title: "Jumlah",
@@ -213,24 +287,7 @@ export default function TambahPO({ notificationApi }: Props) {
       },
       key: "jumlah",
     },
-    {
-      key: "diskon",
-      title: "Diskon",
-      render: (_v, item, index) => (
-        <Form.Item noStyle name={["pembelian_detail", index, "diskon"]} initialValue={item.diskon}>
-          <InputNumber
-            className="w-full"
-            onFocus={(e) => e.target.select()}
-            onChange={(value) => {
-              item.diskon = value || 0;
-            }}
-            min={0}
-            max={100}
-            suffix="%"
-          />
-        </Form.Item>
-      ),
-    },
+
     {
       key: "subtotal",
       title: "Subtotal",
@@ -258,6 +315,14 @@ export default function TambahPO({ notificationApi }: Props) {
       return item;
     });
 
+    const total = newDetail.reduce((acc: number, item: any) => acc + (item?.subtotal || 0), 0);
+
+    setSummary({
+      ...summary,
+      total,
+      sisa_pembayaran: total - (summary?.uang_muka || 0) - (summary?.harga_tukar_tambah || 0),
+    });
+
     form.setFieldsValue({
       pembelian_detail: newDetail,
     });
@@ -283,14 +348,118 @@ export default function TambahPO({ notificationApi }: Props) {
 
   const fieldDetail = form.getFieldValue("pembelian_detail") || [];
 
+  const Footer = () => {
+    return (
+      <>
+        <Table.Summary.Row>
+          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={1} colSpan={2} className="font-bold bg-primary text-white rounded-md">
+            Total Nilai Pesanan
+          </Table.Summary.Cell>
+          <Table.Summary.Cell index={2} className="font-bold">
+            {`Rp ${parseHarga(summary?.total || 0)}`}
+          </Table.Summary.Cell>
+        </Table.Summary.Row>
+
+        <div className="h-1" />
+
+        <Table.Summary.Row>
+          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={1} colSpan={2} className="font-bold bg-primary text-white rounded-t-md">
+            Uang Muka
+          </Table.Summary.Cell>
+          <Table.Summary.Cell index={2} className="font-bold">
+            {`Rp ${parseHarga(summary?.uang_muka || 0)}`}
+          </Table.Summary.Cell>
+        </Table.Summary.Row>
+        <Table.Summary.Row>
+          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={1} colSpan={2} className="font-bold bg-primary text-white rounded-b-md">
+            Tukar Tambah
+          </Table.Summary.Cell>
+          <Table.Summary.Cell index={2} className="font-bold">
+            {`Rp ${parseHarga(summary?.harga_tukar_tambah || 0)}`}
+          </Table.Summary.Cell>
+        </Table.Summary.Row>
+
+        <div className="h-1" />
+
+        <Table.Summary.Row>
+          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={1} colSpan={2} className="font-bold bg-primary text-white rounded-md">
+            Sisa Pembayaran
+          </Table.Summary.Cell>
+          <Table.Summary.Cell index={2} className="font-bold">
+            {`Rp ${parseHarga(summary?.sisa_pembayaran || 0)}`}
+          </Table.Summary.Cell>
+        </Table.Summary.Row>
+
+        <div className="h-1" />
+
+        <Table.Summary.Row>
+          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={1} colSpan={2} className="font-bold bg-primary text-white rounded-md">
+            Metode Pembayaran
+          </Table.Summary.Cell>
+          <Table.Summary.Cell index={2} className="font-bold">
+            {capitalize(summary?.metode_pembayaran || "", " ")}
+          </Table.Summary.Cell>
+        </Table.Summary.Row>
+        {summary?.metode_pembayaran === "tunai leasing" ? (
+          <Table.Summary.Row>
+            <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
+            <Table.Summary.Cell index={1} className="font-bold border border-primary">
+              Nama Leasing
+            </Table.Summary.Cell>
+            <Table.Summary.Cell index={2} className="font-bold">
+              {summary?.nama_leasing}
+            </Table.Summary.Cell>
+          </Table.Summary.Row>
+        ) : null}
+
+        {summary?.metode_pembayaran === "tempo" ? (
+          <>
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
+              <Table.Summary.Cell index={1} className="font-bold border border-primary">
+                Termin Pembayaran
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={2} className="font-bold">
+                {(summary?.termin_pembayaran || 1) / 7} Minggu
+              </Table.Summary.Cell>
+            </Table.Summary.Row>
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
+              <Table.Summary.Cell index={1} className="font-bold border border-primary">
+                Jangka Waktu Pembayaran
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={2} className="font-bold">
+                {(summary?.rentang_pembayaran || 1) / 30} Bulan
+              </Table.Summary.Cell>
+            </Table.Summary.Row>
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
+              <Table.Summary.Cell index={1} className="font-bold border border-primary">
+                Pembayaran Per Termin
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={2} className="font-bold">
+                Rp {parseHarga(summary?.pembayaran_per_minggu || 0)}
+              </Table.Summary.Cell>
+            </Table.Summary.Row>
+          </>
+        ) : null}
+      </>
+    );
+  };
+
   return (
     <DashboardLayout title="Tambah Purchase Order (PO)">
       {isLoading ? (
         <SkeletonTable />
       ) : (
         <Form form={form} layout="vertical" onFinish={handleCreatePO} onValuesChange={handleValueChange}>
-          <div className="w-full flex gap-4">
-            <Form.Item label="Pesanan" className="flex-[0.5]" name="pesanan_id" rules={requiredRule}>
+          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-x-4">
+            <Form.Item label="Nomor Pesanan" name="pesanan_id" rules={requiredRule}>
               <Select
                 optionFilterProp="children"
                 showSearch
@@ -301,13 +470,20 @@ export default function TambahPO({ notificationApi }: Props) {
               />
             </Form.Item>
 
-            <Form.Item rules={requiredRule} label="Nomor PO" className="flex-[0.5]" name="nomor_pembelian">
+            <Form.Item rules={requiredRule} label="Nomor Purchase Order" name="nomor_pembelian">
               {loading ? <Skeleton.Input block active /> : <Input readOnly />}
             </Form.Item>
-          </div>
 
-          <div className="w-full flex gap-4">
-            <Form.Item rules={requiredRule} label="Pelanggan" className="flex-[0.5]" name="pelanggan_id">
+            <Form.Item
+              rules={requiredRule}
+              label="Tanggal Purchase Order"
+              className="pointer-events-none"
+              initialValue={dayjs().format()}
+            >
+              {loading ? <Skeleton.Input block active /> : <DatePicker defaultValue={dayjs()} className="w-full" />}
+            </Form.Item>
+
+            <Form.Item rules={requiredRule} label="Pelanggan" name="pelanggan_id">
               {loading ? (
                 <Skeleton.Input block active />
               ) : (
@@ -321,7 +497,7 @@ export default function TambahPO({ notificationApi }: Props) {
                 />
               )}
             </Form.Item>
-            <Form.Item rules={requiredRule} label="Sales" className="flex-[0.5]" name="user_id">
+            <Form.Item rules={requiredRule} label="Sales" name="user_id">
               {loading ? (
                 <Skeleton.Input block active />
               ) : (
@@ -335,6 +511,28 @@ export default function TambahPO({ notificationApi }: Props) {
                 />
               )}
             </Form.Item>
+            <Form.Item rules={requiredRule} label="Status Pengiriman" name="status" initialValue="Dipesan">
+              {loading ? (
+                <Skeleton.Input block active />
+              ) : (
+                <Select options={parseToOption(["Dipesan", "Dikirim", "Diterima"])} />
+              )}
+            </Form.Item>
+            <Form.Item rules={requiredRule} label="Catatan" name="catatan" className="col-span-2">
+              {loading ? <Skeleton.Input block active /> : <Input.TextArea rows={1} />}
+            </Form.Item>
+            <Form.Item
+              rules={requiredRule}
+              label="Status Pengiriman"
+              name="status_pembayaran"
+              initialValue="Belum Bayar"
+            >
+              {loading ? (
+                <Skeleton.Input block active />
+              ) : (
+                <Select options={parseToOption(["Lunas", "Bayar Sebagian", "Belum Bayar"])} />
+              )}
+            </Form.Item>
           </div>
 
           {loading ? (
@@ -345,7 +543,9 @@ export default function TambahPO({ notificationApi }: Props) {
               columns={columns}
               bordered
               size="small"
+              pagination={false}
               dataSource={fieldDetail}
+              summary={Footer}
             />
           )}
 

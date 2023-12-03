@@ -20,6 +20,7 @@ export interface Pesanan {
   rentang_waktu_pembayaran?: number; // in days
   termin_pembayaran?: number; // in days
   pembayaran_per_minggu?: number;
+  nama_leasing?: string;
   user: User;
 }
 
