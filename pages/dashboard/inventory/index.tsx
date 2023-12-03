@@ -62,7 +62,7 @@ export default function Inventory({ notificationApi }: Props) {
           className="text-blue-500 cursor-pointer hover:text-blue-400 transition-all duration-100"
           onClick={() => setProdukId(record.produk.id)}
         >
-          {record.produk.nama})
+          {record.produk.nama}
         </span>
       ),
     },

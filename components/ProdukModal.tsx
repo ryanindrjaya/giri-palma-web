@@ -69,7 +69,6 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
           children: (
             <Input
               type="text"
-              className="border-0 p-0 focus:outline-none w-full"
               defaultValue={data.nama}
               onChange={_.debounce((e) => {
                 edit({ nama: e.target.value }).catch((err) => {
