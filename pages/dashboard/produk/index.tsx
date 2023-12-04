@@ -75,8 +75,9 @@ export default function Produk({ notificationApi }: Props) {
       title: "Kategori",
       key: "kategori",
       width: 100,
+      align: 'center',
       render: (_v, item) => {
-        const kategori = item.kategori_produk.nama;
+        const kategori = item?.kategori_produk?.nama || '-'
 
         return (
           <Tag className={inria.className} color={kategori === "Springbed" ? "geekblue-inverse" : "gold-inverse"}>
