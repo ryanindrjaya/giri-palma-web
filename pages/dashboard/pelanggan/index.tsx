@@ -11,6 +11,7 @@ import { BsFillTrashFill } from "react-icons/bs";
 import { MdOutlineOpenInNew } from "react-icons/md";
 import useDebounce from "@/hooks/useDebounce";
 import useMutation from "@/hooks/useMutation";
+import PelangganModal from "@/components/PelangganModal";
 
 type Props = {};
 
@@ -21,6 +22,8 @@ export default function Pelanggan({}: Props) {
   const [selectedRow, setSelectedRow] = useState<Pelanggan[]>([]);
   const { data, loading, refetch } = useQuery<Pelanggan[]>("/api/admin/pelanggan");
   const [deletePelanggan, { loading: loadingDelete }] = useMutation("/api/admin/pelanggan", "delete");
+
+  const [pelangganId, setPelangganId] = useState<string | null>(null);
 
   useEffect(() => {
     if (debouncedSearchVal) {
@@ -262,6 +265,13 @@ export default function Pelanggan({}: Props) {
         </div>
       }
     >
+      <PelangganModal
+        refetch={refetch}
+        open={!!pelangganId}
+        onClose={() => setPelangganId(null)}
+        pelangganId={pelangganId || ""}
+      />
+
       {contextHolder}
       {loading ? (
         <SkeletonTable />
@@ -272,8 +282,12 @@ export default function Pelanggan({}: Props) {
             type: "checkbox",
             ...rowSelection,
           }}
-          expandable={{
-            expandedRowRender: (record) => <DetailPelanggan pelanggan={record} />,
+          onRow={(record) => {
+            return {
+              onClick: () => {
+                setPelangganId(record.id);
+              },
+            };
           }}
           rowKey={(item) => item.id}
           size="small"
