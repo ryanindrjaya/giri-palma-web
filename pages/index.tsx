@@ -80,14 +80,14 @@ export default function Login() {
           </div>
           <Form form={form} onFinish={handleLogin} layout="vertical" className="mt-4">
             <Form.Item
-              label="Email"
+              label="Username"
               rules={[
                 {
                   required: true,
-                  message: "Please input your email!",
+                  message: "Please input your username!",
                 },
               ]}
-              name="email"
+              name="username"
             >
               <Input prefix={<UserOutlined className="mr-1" />} />
             </Form.Item>
