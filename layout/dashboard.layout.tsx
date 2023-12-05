@@ -139,8 +139,8 @@ export default function DashboardLayout({
             bottom: 0,
           }}
         >
-          <div className="flex justify-center" style={{ marginBottom: 20 }}>
-            <img src="/images/logo.jpg" className="w-full" />
+          <div className="flex justify-center" style={{ marginBottom: 20, marginTop: 20 }}>
+            <img src="/images/logo_gp_full.jpg" className="w-full px-4 rounded-md" />
           </div>
 
           <Menu selectedKeys={[uri]} theme="light" mode="inline" className="mt-3" items={items} />

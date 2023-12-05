@@ -1,6 +1,6 @@
 import { inria } from "@/layout/dashboard.layout";
 import { parseHarga } from "@/lib/helpers/parseNumber";
-import { DetailPembelian, Pembelian } from "@/types/pembelian.type";
+import { DetailPembelian, Pembelian, PembelianDetail } from "@/types/pembelian.type";
 import dayjs from "dayjs";
 import React, { useMemo } from "react";
 
@@ -28,6 +28,20 @@ const PrintPO = React.forwardRef(({ data }: Props, ref: any) => {
 
   const rightBorder = {
     borderRight: "0.25px solid black",
+  };
+
+  const getHarga = (item: PembelianDetail) => {
+    let harga = item.harga_jual;
+
+    if (item.diskon1 > 0) {
+      harga = harga - harga * (item.diskon1 / 100);
+    }
+
+    if (item.diskon2 > 0) {
+      harga = harga - harga * (item.diskon2 / 100);
+    }
+
+    return harga || 0;
   };
 
   const detail = Array.from({ length: 8 }, (_, i) => data?.pembelian_detail[i]); // create array of 8 items
@@ -121,7 +135,7 @@ const PrintPO = React.forwardRef(({ data }: Props, ref: any) => {
             </td>
             <td style={rightBorder} className="text-xs text-center"></td>
             <td style={rightBorder} className="text-xs text-right pr-1">
-              {item?.harga ? `Rp ${parseHarga(item.harga - (item.harga * item.diskon) / 100)}` : ""}
+              {item?.harga ? `Rp ${getHarga(item)}` : ""}
             </td>
             <td className="text-xs text-right pr-1">{item?.subtotal ? `Rp ${parseHarga(item.subtotal)}` : ""}</td>
           </tr>
