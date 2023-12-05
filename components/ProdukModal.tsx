@@ -88,9 +88,7 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
         {
           key: "kategori",
           label: "Kategori",
-          children: loadingKategori ? (
-            <Skeleton.Input active block />
-          ) : (
+          children: (
             <Select
               className="w-full"
               suffixIcon={null}
@@ -108,9 +106,7 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
         {
           key: "lokasi",
           label: "Lokasi",
-          children: loadingLokasi ? (
-            <Skeleton.Input active block />
-          ) : (
+          children: (
             <Select
               mode="multiple"
               className="w-full"
@@ -302,7 +298,7 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
       onOk={onClose}
       onCancel={onClose}
     >
-      {loading ? (
+      {loading || loadingKategori || loadingLokasi ? (
         <SkeletonTable />
       ) : (
         <div>

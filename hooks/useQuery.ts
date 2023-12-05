@@ -16,14 +16,16 @@ interface ConfigQuery {
 }
 
 function useQuery<T>(uri: string, config?: ConfigQuery): QueryResult<T> {
-  const [trigger] = useState<boolean>(config?.trigger ?? true);
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<AxiosError | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   async function fetchData(params?: any) {
-    setLoading(true);
+    const trigger = config?.trigger ?? true;
+    if (!trigger) return;
+
     try {
+      setLoading(true);
       const jwt = Cookies.get("jwt");
       const response = await fetcher.get(uri, {
         params,
@@ -32,6 +34,7 @@ function useQuery<T>(uri: string, config?: ConfigQuery): QueryResult<T> {
         },
       });
       setData(response.data?.data as T);
+      setLoading(false);
     } catch (error: any) {
       setError(error);
     } finally {
@@ -40,10 +43,8 @@ function useQuery<T>(uri: string, config?: ConfigQuery): QueryResult<T> {
   }
 
   useEffect(() => {
-    if (trigger) {
-      fetchData();
-    }
-  }, [uri, trigger]);
+    fetchData();
+  }, [uri]);
 
   return { data, error, loading, refetch: fetchData };
 }
