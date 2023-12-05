@@ -48,7 +48,7 @@ const PrintPO = React.forwardRef(({ data }: Props, ref: any) => {
       />
       <div className="flex px-1">
         <div className="flex-[0.5] flex flex-col justify-center items-center">
-          <p className="m-0 text-base font-bold">SURAT PESANAN</p>
+          <p className="m-0 text-base font-bold">SURAT PO</p>
           <p className="m-0 text-xs font-bold tracking-wide">Giri Palma Mebel</p>
           <p className="m-0 text-xs text-center">{alamat}</p>
           <p className="m-0 text-xs text-center">Telp. {telp}</p>
