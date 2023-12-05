@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import { NotificationInstance } from "antd/es/notification/interface";
 import { ColumnsType } from "antd/es/table";
 import { Pelanggan } from "@/types/pelanggan.type";
+import PelangganModal from "@/components/PelangganModal";
 
 type Props = {
   notificationApi: NotificationInstance;
@@ -26,6 +27,7 @@ export default function Dashboard({ notificationApi }: Props) {
   const [data, setData] = useState<Analytic | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [get, { error }] = useMutation<Analytic, AnalyticRequest>("/api/admin/analytics/dashboard", "post");
+  const [pelangganId, setPelangganId] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -220,6 +222,14 @@ export default function Dashboard({ notificationApi }: Props) {
       {
         title: "Nama",
         dataIndex: "nama_merchant",
+        render: (v, item) => (
+          <span
+            className="text-blue-500 cursor-pointer hover:text-blue-400 transition-all duration-100"
+            onClick={() => setPelangganId(item.id)}
+          >
+            {v}
+          </span>
+        ),
       },
       {
         title: "Sales",
@@ -240,6 +250,8 @@ export default function Dashboard({ notificationApi }: Props) {
 
   return (
     <DashboardLayout title="Dashboard" isLoading={loading}>
+      <PelangganModal open={!!pelangganId} onClose={() => setPelangganId(null)} pelangganId={pelangganId || ""} />
+
       <div className="flex text-xl font-bold mb-4">
         <span>Selamat Datang</span>
         <span>, {user?.nama}</span>
