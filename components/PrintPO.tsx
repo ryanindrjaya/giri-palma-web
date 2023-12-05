@@ -31,7 +31,7 @@ const PrintPO = React.forwardRef(({ data }: Props, ref: any) => {
   };
 
   const getHarga = (item: PembelianDetail) => {
-    let harga = item.harga_jual;
+    let harga = item.harga;
 
     if (item.diskon1 > 0) {
       harga = harga - harga * (item.diskon1 / 100);
@@ -41,7 +41,7 @@ const PrintPO = React.forwardRef(({ data }: Props, ref: any) => {
       harga = harga - harga * (item.diskon2 / 100);
     }
 
-    return harga || 0;
+    return parseHarga(Math.round(harga || 0));
   };
 
   const detail = Array.from({ length: 8 }, (_, i) => data?.pembelian_detail[i]); // create array of 8 items
