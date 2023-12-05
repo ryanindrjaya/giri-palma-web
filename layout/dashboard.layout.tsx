@@ -9,10 +9,11 @@ import { FiTruck, FiUsers } from "react-icons/fi";
 import { BsBasket } from "react-icons/bs";
 import { AiOutlineTag } from "react-icons/ai";
 import { CiBoxes } from "react-icons/ci";
-import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { DatabaseOutlined, DollarOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import Cookies from "js-cookie";
 import SkeletonTable from "@/components/SkeletonTable";
 import { capitalize } from "@/lib/helpers/capitalize";
+import { FaStoreAlt } from "react-icons/fa";
 
 type Props = {
   children: React.ReactNode;
@@ -44,34 +45,72 @@ export default function DashboardLayout({
       className: inria.className,
       onClick: () => router.push("/dashboard"),
     },
+
     {
-      key: "pelanggan",
-      icon: <FiUsers />,
-      label: "Pelanggan",
+      key: "master",
+      icon: <DatabaseOutlined />,
+      label: "Master",
       className: inria.className,
-      onClick: () => router.push("/dashboard/pelanggan"),
-    },
-    {
-      key: "produk-menu",
-      icon: <BsBasket />,
-      className: inria.className,
-      label: "Produk",
       children: [
         {
-          key: "produk",
-          label: "Daftar Produk",
-          onClick: () => router.push("/dashboard/produk"),
-        },
+          key: "produk-menu",
+          icon: <BsBasket />,
+          className: inria.className,
+          label: "Produk",
+          children: [
+            {
+              key: "produk",
+              label: "Daftar Produk",
+              onClick: () => router.push("/dashboard/produk"),
+            },
 
-        {
-          key: "lokasi",
-          label: "Lokasi Produk",
-          onClick: () => router.push("/dashboard/lokasi"),
+            {
+              key: "lokasi",
+              label: "Lokasi Produk",
+              onClick: () => router.push("/dashboard/lokasi"),
+            },
+            {
+              key: "kategori-produk",
+              label: "Kategori Produk",
+              onClick: () => router.push("/dashboard/kategori-produk"),
+            },
+          ],
         },
         {
-          key: "kategori-produk",
-          label: "Kategori Produk",
-          onClick: () => router.push("/dashboard/kategori-produk"),
+          key: "pelanggan",
+          icon: <FiUsers />,
+          label: "Pelanggan",
+          className: inria.className,
+          onClick: () => router.push("/dashboard/pelanggan"),
+        },
+        {
+          key: "leasing",
+          icon: <FaStoreAlt />,
+          label: "Leasing",
+          className: inria.className,
+          onClick: () => router.push("/dashboard/leasing"),
+        },
+      ],
+    },
+    {
+      key: "penjualan",
+      icon: <DollarOutlined />,
+      label: "Penjualan",
+      className: inria.className,
+      children: [
+        {
+          key: "pesanan",
+          icon: <AiOutlineTag />,
+          label: "Pesanan",
+          className: inria.className,
+          onClick: () => router.push("/dashboard/pesanan"),
+        },
+        {
+          key: "purchase-order",
+          icon: <FiTruck />,
+          className: inria.className,
+          label: "Purchase Order",
+          onClick: () => router.push("/dashboard/purchase-order"),
         },
       ],
     },
@@ -81,20 +120,6 @@ export default function DashboardLayout({
       label: "Inventory",
       className: inria.className,
       onClick: () => router.push("/dashboard/inventory"),
-    },
-    {
-      key: "pesanan",
-      icon: <AiOutlineTag />,
-      label: "Pesanan",
-      className: inria.className,
-      onClick: () => router.push("/dashboard/pesanan"),
-    },
-    {
-      key: "purchase-order",
-      icon: <FiTruck />,
-      className: inria.className,
-      label: "Purchase Order",
-      onClick: () => router.push("/dashboard/purchase-order"),
     },
   ];
 
