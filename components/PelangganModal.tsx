@@ -1,6 +1,6 @@
 import useQuery from "@/hooks/useQuery";
 import { Pelanggan } from "@/types/pelanggan.type";
-import { Descriptions, DescriptionsProps, Modal } from "antd";
+import { Descriptions, DescriptionsProps, Image, Modal } from "antd";
 import React, { useMemo } from "react";
 import { MdOutlineOpenInNew } from "react-icons/md";
 import SkeletonTable from "./SkeletonTable";
@@ -125,7 +125,7 @@ export default function PelangganModal({ refetch, open, pelangganId, onClose }: 
     <Modal
       okButtonProps={{ hidden: true, style: { display: "none" } }}
       cancelText="Tutup"
-      title="Customer Detail"
+      title="Pelanggan Detail"
       width={1000}
       open={open}
       onOk={onClose}
@@ -134,10 +134,24 @@ export default function PelangganModal({ refetch, open, pelangganId, onClose }: 
       {loading ? (
         <SkeletonTable />
       ) : (
-        <>
+        <div className="flex flex-col gap-4">
+          <div className="mb-5">
+            <p className="font-bold text-base">Gambar Pelanggan</p>
+            <Image.PreviewGroup>
+              {pelanggan?.image_url?.map((item, idx) => (
+                <Image
+                  key={`gambar-pelanggan-${idx}`}
+                  src={item}
+                  width={200}
+                  height={200}
+                  className="object-cover object-center rounded-md"
+                />
+              ))}
+            </Image.PreviewGroup>
+          </div>
           <Descriptions bordered size="small" title="Data Pelanggan" items={dataPelanggan} />
           <Descriptions bordered size="small" title="Lokasi Pelanggan" items={dataLokasi} />
-        </>
+        </div>
       )}
     </Modal>
   );

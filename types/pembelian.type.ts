@@ -97,7 +97,8 @@ export interface CreatePembelian {
 export interface CreatePembelianDetail {
   produk_id: string;
   produk_detail_id: string;
-  diskon: number;
+  diskon1: number;
+  diskon2: number;
   quantity: number;
   immutable_quantity?: number;
   produk?: Produk;

@@ -92,6 +92,16 @@ export default function TambahPO({ notificationApi }: Props) {
         const pembelianDetail: CreatePembelianDetail[] = [];
 
         data.pesanan_detail?.forEach((item) => {
+          let subtotal = item.quantity * (item.produk_detail?.harga || 0);
+
+          if (item.diskon1 > 0) {
+            subtotal = subtotal * ((100 - item.diskon1) / 100);
+          }
+
+          if (item.diskon2 > 0) {
+            subtotal = subtotal * ((100 - item.diskon2) / 100);
+          }
+
           pembelianDetail.push({
             produk: item.produk,
             produk_detail: item.produk_detail,
@@ -99,8 +109,9 @@ export default function TambahPO({ notificationApi }: Props) {
             produk_detail_id: item.produk_detail?.detail_id,
             quantity: item.quantity,
             immutable_quantity: item.quantity,
-            diskon: item.diskon,
-            subtotal: item.quantity * (item.produk_detail?.harga || 0) * ((100 - item.diskon) / 100),
+            diskon1: item.diskon1,
+            diskon2: item.diskon2,
+            subtotal: Math.round(subtotal),
           });
         });
 
@@ -246,15 +257,33 @@ export default function TambahPO({ notificationApi }: Props) {
       render: (_v, item) => `Rp ${parseHarga(item.produk_detail?.harga || 0)}`,
     },
     {
-      key: "diskon",
-      title: "Diskon",
+      key: "diskon1",
+      title: "Diskon 1",
       render: (_v, item, index) => (
-        <Form.Item noStyle name={["pembelian_detail", index, "diskon"]} initialValue={item.diskon}>
+        <Form.Item noStyle name={["pembelian_detail", index, "diskon1"]} initialValue={item.diskon1}>
           <InputNumber
             className="w-full"
             onFocus={(e) => e.target.select()}
             onChange={(value) => {
-              item.diskon = value || 0;
+              item.diskon1 = value || 0;
+            }}
+            min={0}
+            max={100}
+            suffix="%"
+          />
+        </Form.Item>
+      ),
+    },
+    {
+      key: "diskon2",
+      title: "Diskon 2",
+      render: (_v, item, index) => (
+        <Form.Item noStyle name={["pembelian_detail", index, "diskon2"]} initialValue={item.diskon2}>
+          <InputNumber
+            className="w-full"
+            onFocus={(e) => e.target.select()}
+            onChange={(value) => {
+              item.diskon2 = value || 0;
             }}
             min={0}
             max={100}
@@ -310,8 +339,16 @@ export default function TambahPO({ notificationApi }: Props) {
     const detail = allValues.pembelian_detail || [];
 
     const newDetail = detail.map((item: any) => {
-      const subtotal = item.quantity * (item.produk_detail?.harga || 0) * ((100 - item.diskon) / 100);
-      item.subtotal = subtotal;
+      let subtotal = item.quantity * (item.produk_detail?.harga || 0);
+
+      if (item.diskon1 > 0) {
+        subtotal = subtotal * ((100 - item.diskon1) / 100);
+      }
+
+      if (item.diskon2 > 0) {
+        subtotal = subtotal * ((100 - item.diskon2) / 100);
+      }
+      item.subtotal = Math.round(subtotal);
       return item;
     });
 
@@ -352,7 +389,7 @@ export default function TambahPO({ notificationApi }: Props) {
     return (
       <>
         <Table.Summary.Row>
-          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} colSpan={2} className="font-bold bg-primary text-white rounded-md">
             Total Nilai Pesanan
           </Table.Summary.Cell>
@@ -364,7 +401,7 @@ export default function TambahPO({ notificationApi }: Props) {
         <div className="h-1" />
 
         <Table.Summary.Row>
-          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} colSpan={2} className="font-bold bg-primary text-white rounded-t-md">
             Uang Muka
           </Table.Summary.Cell>
@@ -373,7 +410,7 @@ export default function TambahPO({ notificationApi }: Props) {
           </Table.Summary.Cell>
         </Table.Summary.Row>
         <Table.Summary.Row>
-          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} colSpan={2} className="font-bold bg-primary text-white rounded-b-md">
             Tukar Tambah
           </Table.Summary.Cell>
@@ -385,19 +422,19 @@ export default function TambahPO({ notificationApi }: Props) {
         <div className="h-1" />
 
         <Table.Summary.Row>
-          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} colSpan={2} className="font-bold bg-primary text-white rounded-md">
             Sisa Pembayaran
           </Table.Summary.Cell>
           <Table.Summary.Cell index={2} className="font-bold">
-            {`Rp ${parseHarga(summary?.sisa_pembayaran || 0)}`}
+            {`Rp ${summary?.sisa_pembayaran >= 0 ? parseHarga(summary?.sisa_pembayaran) : 0}`}
           </Table.Summary.Cell>
         </Table.Summary.Row>
 
         <div className="h-1" />
 
         <Table.Summary.Row>
-          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
+          <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} colSpan={2} className="font-bold bg-primary text-white rounded-md">
             Metode Pembayaran
           </Table.Summary.Cell>
@@ -407,7 +444,7 @@ export default function TambahPO({ notificationApi }: Props) {
         </Table.Summary.Row>
         {summary?.metode_pembayaran === "tunai leasing" ? (
           <Table.Summary.Row>
-            <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
+            <Table.Summary.Cell index={0} align="center" colSpan={6}></Table.Summary.Cell>
             <Table.Summary.Cell index={1} className="font-bold border border-primary">
               Nama Leasing
             </Table.Summary.Cell>
@@ -420,7 +457,7 @@ export default function TambahPO({ notificationApi }: Props) {
         {summary?.metode_pembayaran === "tempo" ? (
           <>
             <Table.Summary.Row>
-              <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
+              <Table.Summary.Cell index={0} align="center" colSpan={6}></Table.Summary.Cell>
               <Table.Summary.Cell index={1} className="font-bold border border-primary">
                 Termin Pembayaran
               </Table.Summary.Cell>
@@ -429,7 +466,7 @@ export default function TambahPO({ notificationApi }: Props) {
               </Table.Summary.Cell>
             </Table.Summary.Row>
             <Table.Summary.Row>
-              <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
+              <Table.Summary.Cell index={0} align="center" colSpan={6}></Table.Summary.Cell>
               <Table.Summary.Cell index={1} className="font-bold border border-primary">
                 Jangka Waktu Pembayaran
               </Table.Summary.Cell>
@@ -438,7 +475,7 @@ export default function TambahPO({ notificationApi }: Props) {
               </Table.Summary.Cell>
             </Table.Summary.Row>
             <Table.Summary.Row>
-              <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
+              <Table.Summary.Cell index={0} align="center" colSpan={6}></Table.Summary.Cell>
               <Table.Summary.Cell index={1} className="font-bold border border-primary">
                 Pembayaran Per Termin
               </Table.Summary.Cell>

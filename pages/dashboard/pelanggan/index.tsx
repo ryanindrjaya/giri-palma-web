@@ -292,8 +292,8 @@ export default function Pelanggan({}: Props) {
           rowKey={(item) => item.id}
           size="small"
           rootClassName={`rounded-md ${inria.className} `}
+          rowClassName={`${inria.className} cursor-pointer`}
           columns={columns}
-          rowClassName={inria.className}
           dataSource={data || []}
         />
       )}

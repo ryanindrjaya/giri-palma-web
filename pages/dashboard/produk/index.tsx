@@ -75,9 +75,9 @@ export default function Produk({ notificationApi }: Props) {
       title: "Kategori",
       key: "kategori",
       width: 100,
-      align: 'center',
+      align: "center",
       render: (_v, item) => {
-        const kategori = item?.kategori_produk?.nama || '-'
+        const kategori = item?.kategori_produk?.nama || "-";
 
         return (
           <Tag className={inria.className} color={kategori === "Springbed" ? "geekblue-inverse" : "gold-inverse"}>
@@ -109,20 +109,6 @@ export default function Produk({ notificationApi }: Props) {
           </div>
         );
       },
-    },
-    {
-      title: "Diskon",
-      key: "diskon",
-      render: (_v, item) => (
-        <InputNumber
-          disabled={!item.on_promo}
-          onClick={(e) => e.stopPropagation()}
-          onFocus={(e) => e.target.select()}
-          defaultValue={item.diskon}
-          onBlur={(e) => editProduk({ diskon: Number(e.target.value || 0) }, item.id)}
-          suffix="%"
-        />
-      ),
     },
     {
       title: "Action",

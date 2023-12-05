@@ -42,7 +42,8 @@ export interface PesananDetail {
   produk: Produk;
   produk_detail: ProdukDetail;
   produk_detail_id: string;
-  diskon: number;
+  diskon1: number;
+  diskon2: number;
   harga: number;
   harga_jual: number;
   subtotal: number;

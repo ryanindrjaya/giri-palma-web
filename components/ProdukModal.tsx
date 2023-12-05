@@ -121,6 +121,7 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
                 const selectedLokasi = lokasi?.filter((item) => value.includes(item.id));
 
                 if (!selectedLokasi) return;
+                if (selectedLokasi.length === 0) return;
 
                 edit({ lokasi_produk: selectedLokasi }).catch((err) => {
                   console.error("Error edit lokasi produk: ", err);
@@ -151,24 +152,10 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
           span: 2,
         },
         {
-          key: "diskon",
-          label: "Diskon (%)",
-          children: (
-            <InputNumber
-              onFocus={(e) => e.target.select()}
-              formatter={(value) => `${value}%`}
-              parser={(value) => parseInt(value?.replace("%", "") || "0")}
-              defaultValue={data.diskon}
-              onChange={_.debounce((value) => edit({ diskon: value }), 1000)}
-            />
-          ),
-          span: 1,
-        },
-        {
           key: "sales_fee",
           label: "Sales Fee (%)",
           children: `${data.sales_fee}%`,
-          span: 1,
+          span: 2,
         },
         {
           key: "deskripsi",
@@ -199,7 +186,7 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
     },
     {
       key: "tipe",
-      title: "Ukuran",
+      title: "Sub Tipe",
       width: 200,
       render: (text, item) => {
         return (
@@ -217,6 +204,60 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
               });
             }, 1000)}
             onFocus={(e) => e.target.select()}
+          />
+        );
+      },
+    },
+    {
+      key: "diskon1",
+      title: "Diskon 1",
+      width: 100,
+      render: (text, item) => {
+        return (
+          <InputNumber
+            className="w-full"
+            defaultValue={item.diskon1}
+            onChange={_.debounce((value) => {
+              const detailBody: ProdukDetail = {
+                ...item,
+                diskon1: value,
+              };
+
+              edit({ produk_detail: [detailBody] }).catch((err) => {
+                console.error("Error edit diskon1 produk: ", err);
+              });
+            }, 1000)}
+            onFocus={(e) => e.target.select()}
+            formatter={(value) => `${value}%`}
+            precision={2}
+            parser={(value) => parseFloat(value?.replace("%", "") || "0")}
+          />
+        );
+      },
+    },
+    {
+      key: "diskon2",
+      title: "Diskon 2",
+      width: 100,
+      render: (text, item) => {
+        return (
+          <InputNumber
+            className="w-full"
+            defaultValue={item.diskon2}
+            onChange={_.debounce((value) => {
+              const detailBody: ProdukDetail = {
+                ...item,
+                diskon2: value,
+              };
+
+              edit({ produk_detail: [detailBody] }).catch((err) => {
+                console.error("Error edit diskon1 produk: ", err);
+              });
+            }, 1000)}
+            onFocus={(e) => e.target.select()}
+            formatter={(value) => `${value}%`}
+            precision={2}
+            parser={(value) => parseFloat(value?.replace("%", "") || "0")}
           />
         );
       },
@@ -278,7 +319,13 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
             <p className="font-bold text-base">Gambar Produk</p>
             <Image.PreviewGroup>
               {data?.image_url?.map((item, idx) => (
-                <Image key={`gambar-produk-${idx}`} src={item} width={200} />
+                <Image
+                  key={`gambar-produk-${idx}`}
+                  src={item}
+                  width={200}
+                  height={200}
+                  className="object-cover object-center rounded-md"
+                />
               ))}
             </Image.PreviewGroup>
           </div>

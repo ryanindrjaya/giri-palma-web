@@ -20,6 +20,8 @@ export interface Produk {
 export interface ProdukDetail {
   detail_id: string;
   tipe: string;
+  diskon1: number;
+  diskon2: number;
   ukuran: string;
   harga: number;
   produk_id: string;
