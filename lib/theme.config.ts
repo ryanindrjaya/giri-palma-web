@@ -3,15 +3,15 @@ import { ThemeConfig } from "antd";
 
 export const themeConfig: ThemeConfig = {
   token: {
-    colorPrimary: "#9870b1",
-    colorInfo: "#9870b1",
+    colorPrimary: "#13B1BC",
+    colorInfo: "#13B1BC",
     colorError: "#ff8a8a",
     colorSuccess: "#97d895",
     ...inria.style,
   },
   components: {
     Button: {
-      colorBgBase: "#9870b1",
+      colorBgBase: "#13B1BC",
     },
   },
 };

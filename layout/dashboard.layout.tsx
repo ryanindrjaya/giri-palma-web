@@ -139,8 +139,8 @@ export default function DashboardLayout({
             bottom: 0,
           }}
         >
-          <div className="flex justify-center" style={{ marginBottom: 20, marginTop: 20 }}>
-            <img src="/images/logo_gp.png" className="w-32" />
+          <div className="flex justify-center" style={{ marginBottom: 20 }}>
+            <img src="/images/logo.jpg" className="w-full" />
           </div>
 
           <Menu selectedKeys={[uri]} theme="light" mode="inline" className="mt-3" items={items} />
@@ -187,7 +187,7 @@ export default function DashboardLayout({
             <div className={inria.className}>{isLoading ? <SkeletonTable /> : children}</div>
           </Content>
           <Footer style={{ textAlign: "center", fontFamily: inria.style.fontFamily, fontWeight: 300 }}>
-            GP ADMIN DASHBOARD VERSION 1.1.0
+            BLIKASUR ADMIN DASHBOARD v1.2.0
           </Footer>
         </Layout>
       </Layout>
