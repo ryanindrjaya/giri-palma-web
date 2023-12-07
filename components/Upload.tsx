@@ -8,7 +8,7 @@ const { Dragger } = Upload;
 const props: UploadProps = {
   name: "file",
   multiple: true,
-  // action: `${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/upload/produk`,
+  action: "/api/noop",
   onDrop(e) {
     console.log("Dropped files", e.dataTransfer.files);
   },
