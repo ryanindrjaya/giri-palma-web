@@ -173,7 +173,7 @@ export default function DashboardLayout({
           }}
         >
           <div className="flex justify-center" style={{ marginBottom: 20, marginTop: 20 }}>
-            <img src="/images/logo_gp_full.jpg" className="w-full px-4 rounded-lg" />
+            <img src="/images/blikasur-logo.png" className="w-full px-4 rounded-lg" />
           </div>
 
           <Menu selectedKeys={[uri]} theme="light" mode="inline" className="mt-3" items={items} />
