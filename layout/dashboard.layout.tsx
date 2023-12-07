@@ -14,6 +14,7 @@ import Cookies from "js-cookie";
 import SkeletonTable from "@/components/SkeletonTable";
 import { capitalize } from "@/lib/helpers/capitalize";
 import { FaStoreAlt } from "react-icons/fa";
+import { IoDocumentAttachOutline } from "react-icons/io5";
 
 type Props = {
   children: React.ReactNode;
@@ -111,6 +112,13 @@ export default function DashboardLayout({
           className: inria.className,
           label: "Purchase Order",
           onClick: () => router.push("/dashboard/purchase-order"),
+        },
+        {
+          key: "surat-jalan",
+          icon: <IoDocumentAttachOutline />,
+          label: "Surat Jalan",
+          className: inria.className,
+          onClick: () => router.push("/dashboard/surat-jalan"),
         },
       ],
     },

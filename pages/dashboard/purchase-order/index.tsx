@@ -1,17 +1,5 @@
 import DashboardLayout, { inria } from "@/layout/dashboard.layout";
-import {
-  Button,
-  Descriptions,
-  DescriptionsProps,
-  Input,
-  Modal,
-  Popconfirm,
-  Popover,
-  Select,
-  Table,
-  Tag,
-  Tooltip,
-} from "antd";
+import { Button, Input, Modal, Popconfirm, Popover, Select, Table, Tag, Tooltip } from "antd";
 import { GiSettingsKnobs } from "react-icons/gi";
 import { AiOutlinePlus } from "react-icons/ai";
 import React, { useState, useEffect, useRef } from "react";
@@ -26,7 +14,7 @@ import { NotificationInstance } from "antd/es/notification/interface";
 import { MdPayment } from "react-icons/md";
 import { FaInfoCircle, FaPrint } from "react-icons/fa";
 import { parseHarga } from "@/lib/helpers/parseNumber";
-import { DetailPembelian, Pembelian, PembelianDetail } from "@/types/pembelian.type";
+import { DetailPembelian, Pembelian } from "@/types/pembelian.type";
 import Link from "next/link";
 import PrintPO from "@/components/PrintPO";
 import { useReactToPrint } from "react-to-print";
@@ -35,6 +23,10 @@ import { PESANAN_COLOR, PESANAN_TEXT_COLOR } from "@/lib/constant/icon_color";
 import Cookies from "js-cookie";
 import fetcher from "@/lib/axios";
 import { LoadingOutlined, MenuOutlined } from "@ant-design/icons";
+import { SuratJalanType } from "@/types/surat-jalan.type";
+import { IoDocumentAttachOutline } from "react-icons/io5";
+
+const key = "notification-sr";
 
 type Props = {
   notificationApi: NotificationInstance;
@@ -44,10 +36,29 @@ export default function PurchaseOrder({ notificationApi }: Props) {
   const router = useRouter();
   const [searchVal, setSearchVal] = useState<string>("");
   const debouncedSearchVal = useDebounce(searchVal, 500);
+  const [loadingSuratJalan, setLoadingSuratJalan] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Pembelian[]>([]);
   const { data, loading, refetch } = useQuery<Pembelian[]>("/api/admin/pembelian");
   const [deletePembelian, { loading: loadingDelete }] = useMutation("/api/admin/pembelian", "delete");
   const [editPembelian, { loading: loadingEdit }] = useMutation("/api/admin/pembelian", "put");
+  const [postSR] = useMutation("/api/admin/surat-jalan", "post", {
+    onSuccess: (data: { data: SuratJalanType }) => {
+      notificationApi.open({
+        key,
+        type: "success",
+        message: "Berhasil",
+        description: "Berhasil membuat surat jalan, mengarahkan ke halaman surat jalan",
+        placement: "topRight",
+      });
+
+      setTimeout(() => {
+        router.push(`/dashboard/surat-jalan?ref=${data?.data?.id}`);
+        notificationApi.destroy();
+      }, 1000);
+
+      setLoadingSuratJalan(false);
+    },
+  });
 
   const [pembelianDetail, setPembelianDetail] = useState<DetailPembelian | null>(null);
   const printRef = useRef(null);
@@ -199,7 +210,7 @@ export default function PurchaseOrder({ notificationApi }: Props) {
       render: (_, item) => (
         <Popover
           trigger="click"
-          placement="bottom"
+          placement="bottomLeft"
           content={
             <div className="flex justify-center items-center gap-2">
               <Tooltip title="Lihat Detail">
@@ -227,6 +238,16 @@ export default function PurchaseOrder({ notificationApi }: Props) {
                   <MdPayment size={18} />
                 </Button>
               </Tooltip>
+              <Tooltip title="Buat Surat Jalan">
+                <Button
+                  loading={loadingSuratJalan}
+                  onClick={() => createSuratJalan(item.id)}
+                  type="primary"
+                  className="flex p-1 justify-center items-center"
+                >
+                  <IoDocumentAttachOutline size={18} />
+                </Button>
+              </Tooltip>
             </div>
           }
         >
@@ -238,10 +259,127 @@ export default function PurchaseOrder({ notificationApi }: Props) {
     },
   ];
 
-  const rowSelection = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: Pembelian[]) => {
-      setSelectedRow(selectedRows);
-    },
+  const cekSuratJalan = async (id: string): Promise<string | null> => {
+    try {
+      const jwt = Cookies.get("jwt");
+      const res = await fetcher.get<{ data: SuratJalanType[] }>(`/api/admin/surat-jalan?pembelian_id=${id}`, {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      });
+
+      if (res.data.data.length > 0) {
+        return res.data.data[0].id;
+      }
+
+      return null;
+    } catch (error: any) {
+      return null;
+    }
+  };
+
+  const generateNomorSuratJalan = async (): Promise<string | null> => {
+    try {
+      const jwt = Cookies.get("jwt");
+      const res = await fetcher.get<{ data: { nomor: string } }>(`/api/generate/surat-jalan`, {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      });
+
+      if (res.data.data) {
+        return res.data.data.nomor;
+      }
+
+      return null;
+    } catch (error: any) {
+      return null;
+    }
+  };
+
+  const createSuratJalan = async (id: string) => {
+    setLoadingSuratJalan(true);
+
+    notificationApi.open({
+      key,
+      type: "info",
+      message: "Membuat surat jalan",
+      icon: <LoadingOutlined />,
+      description: "Surat jalan sedang dibuat harap tunggu",
+      placement: "topRight",
+      duration: 10000,
+    });
+
+    try {
+      const isAlreadyPaired = await cekSuratJalan(id);
+
+      if (isAlreadyPaired) {
+        notificationApi.open({
+          key,
+          type: "error",
+          message: "Gagal",
+          description: (
+            <div>
+              <p className="m-0">
+                Surat jalan dengan pembelian yang dipilih sudah dibuat, silahkan cek di halaman surat jalan
+              </p>
+              <div className="flex mt-2 justify-end">
+                <Button
+                  onClick={() => {
+                    router.push(`/dashboard/surat-jalan?ref=${isAlreadyPaired}`);
+                    notificationApi.destroy();
+                  }}
+                  type="link"
+                  className="flex p-1 justify-center items-center"
+                >
+                  Lihat Surat Jalan
+                </Button>
+              </div>
+            </div>
+          ),
+          placement: "topRight",
+        });
+        setLoadingSuratJalan(false);
+        return;
+      }
+
+      const nomor = await generateNomorSuratJalan();
+
+      if (!nomor) {
+        notificationApi.open({
+          key,
+          type: "error",
+          message: "Gagal",
+          description: "Gagal mendapatkan nomor surat jalan, harap coba lagi nanti",
+          placement: "topRight",
+        });
+        setLoadingSuratJalan(false);
+        return;
+      }
+
+      const body = {
+        nomor_surat_jalan: nomor,
+        pembelian_id: id,
+      };
+
+      postSR(body).catch((error) => {
+        notificationApi.open({
+          key,
+          type: "error",
+          message: "Gagal membuat surat jalan",
+          description: error?.response?.data?.message || "Gagal membuat surat jalan",
+          placement: "topRight",
+        });
+        setLoadingSuratJalan(false);
+      });
+    } catch (error: any) {
+      notificationApi.error({
+        message: "Gagal",
+        description: error?.response?.data?.message || "Gagal membuat surat jalan",
+        placement: "topRight",
+      });
+      setLoadingSuratJalan(false);
+    }
   };
 
   const changeStatus = async (id: string, status: string) => {
