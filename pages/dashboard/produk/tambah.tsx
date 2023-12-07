@@ -9,15 +9,15 @@ import fetcher from "@/lib/axios";
 import useQuery from "@/hooks/useQuery";
 import { parseToOption } from "@/lib/helpers/parseToOption";
 import { parseHarga } from "@/lib/helpers/parseNumber";
-import { CheckCircleOutlined } from "@ant-design/icons";
 import FileUpload from "@/components/Upload";
+import { IoIosCloseCircle } from "react-icons/io";
 import { NotificationInstance } from "antd/es/notification/interface";
 
 type Props = {
   notificationApi: NotificationInstance;
 };
 
-export const UKURAN_OPTION: string[] = ["90x200", "100x200", "120x200", "160x200", "180x200", "200x200"];
+const UKURAN_OPTION: string[] = ["90x200", "100x200", "120x200", "160x200", "180x200", "200x200"];
 
 export default function TambahProduk({ notificationApi }: Props) {
   const router = useRouter();
@@ -41,6 +41,8 @@ export default function TambahProduk({ notificationApi }: Props) {
   });
 
   const [ukuran, setUkuran] = useState<string[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
+  const [openDrawer, setOpenDrawer] = useState<{ [x: string]: boolean }>({});
   const [openFullset, setOpenFullset] = useState<boolean>(false);
   const [openMatras, setOpenMatras] = useState<boolean>(false);
 
@@ -103,11 +105,23 @@ export default function TambahProduk({ notificationApi }: Props) {
 
   const filteredUkuranOptions = UKURAN_OPTION.filter((o) => !ukuran.includes(o));
 
-  const handleSubmit = async (values: CreateProdukRequest) => {
-    console.log(values);
+  const handleSubmit = async () => {
+    const values = await form.validateFields();
+
+    const produkDetail = types
+      .map((type) => {
+        const parse = type.toLowerCase().replace(" ", "_");
+        const detail = form.getFieldValue(`detail_${parse}`) as CreateProdukDetail[];
+
+        delete values[`detail_${parse}`];
+
+        return detail;
+      })
+      .flat();
+
     const body = {
       ...values,
-      produk_detail: [...values.detail_fullset, ...values.detail_matras],
+      produk_detail: produkDetail,
     };
 
     createProduk(body).catch((error: any) => {
@@ -121,75 +135,56 @@ export default function TambahProduk({ notificationApi }: Props) {
 
   return (
     <DashboardLayout title="Tambah Produk" isLoading={isLoading}>
-      <Form<CreateProdukRequest> form={form} layout="vertical" onFinish={handleSubmit}>
-        <Drawer title="Harga Fullset" placement="right" open={openFullset} onClose={() => setOpenFullset(false)}>
-          {ukuran.map((item, index) => (
-            <div key={index} className="flex flex-col md:flex-row w-full items-center gap-4">
-              <Form.Item hidden name={["detail_fullset", index, "tipe"]}></Form.Item>
-              <Form.Item
-                labelAlign="left"
-                label="Ukuran"
-                className="flex-1 "
-                initialValue={item}
-                name={["detail_fullset", index, "ukuran"]}
-                rules={[{ required: true, message: "Ukuran produk harus diisi" }]}
-              >
-                <Input disabled readOnly />
-              </Form.Item>
-              <Form.Item
-                className="flex-1 "
-                label="Harga"
-                name={["detail_fullset", index, "harga"]}
-                rules={[{ required: true, message: "Harga ukuran produk harus diisi" }]}
-              >
-                <InputNumber
-                  className="w-full"
-                  prefix="Rp "
-                  onFocus={(e) => e.target.select()}
-                  formatter={(value) => parseHarga(value as string)}
-                  parser={(value) => Number(value?.replace(/[^0-9]/g, "") || 0)}
-                />
-              </Form.Item>
-            </div>
-          ))}
-          <Button type="primary" onClick={() => setOpenFullset(false)}>
-            Simpan
-          </Button>
-        </Drawer>
-        <Drawer title="Harga Matras Only" placement="right" open={openMatras} onClose={() => setOpenMatras(false)}>
-          {ukuran.map((item, index) => (
-            <div key={index} className="flex flex-col md:flex-row w-full items-center gap-4">
-              <Form.Item hidden name={["detail_matras", index, "tipe"]}></Form.Item>
-              <Form.Item
-                labelAlign="left"
-                label="Ukuran"
-                className="flex-1 "
-                name={["detail_matras", index, "ukuran"]}
-                initialValue={item}
-                rules={[{ required: true, message: "Ukuran produk harus diisi" }]}
-              >
-                <Input disabled readOnly />
-              </Form.Item>
-              <Form.Item
-                className="flex-1 "
-                label="Harga"
-                name={["detail_matras", index, "harga"]}
-                rules={[{ required: true, message: "Harga ukuran produk harus diisi" }]}
-              >
-                <InputNumber
-                  className="w-full"
-                  prefix="Rp "
-                  onFocus={(e) => e.target.select()}
-                  formatter={(value) => parseHarga(value as string)}
-                  parser={(value) => Number(value?.replace(/[^0-9]/g, "") || 0)}
-                />
-              </Form.Item>
-            </div>
-          ))}
-          <Button type="primary" onClick={() => setOpenMatras(false)}>
-            Simpan
-          </Button>
-        </Drawer>
+      <Form<CreateProdukRequest> form={form} layout="vertical">
+        {types.map((tipe, idx) => (
+          <Drawer
+            key={`drawer-${idx}`}
+            title={`Harga ${tipe}`}
+            placement="right"
+            open={openDrawer?.[tipe]}
+            onClose={() => {
+              setOpenDrawer({ ...openDrawer, [tipe]: false });
+            }}
+          >
+            {ukuran.map((item, index) => (
+              <div key={index} className="flex flex-col md:flex-row w-full items-center gap-4">
+                <Form.Item hidden name={[`detail_${tipe.toLowerCase().replace(" ", "_")}`, index, "tipe"]}></Form.Item>
+                <Form.Item
+                  labelAlign="left"
+                  label="Ukuran"
+                  className="flex-1 "
+                  initialValue={item}
+                  name={[`detail_${tipe.toLowerCase().replace(" ", "_")}`, index, "ukuran"]}
+                  rules={[{ required: true, message: "Ukuran produk harus diisi" }]}
+                >
+                  <Input disabled readOnly />
+                </Form.Item>
+                <Form.Item
+                  className="flex-1 "
+                  label="Harga"
+                  name={[`detail_${tipe.toLowerCase().replace(" ", "_")}`, index, "harga"]}
+                  rules={[{ required: true, message: "Harga ukuran produk harus diisi" }]}
+                >
+                  <InputNumber
+                    className="w-full"
+                    prefix="Rp "
+                    onFocus={(e) => e.target.select()}
+                    formatter={(value) => parseHarga(value as string)}
+                    parser={(value) => Number(value?.replace(/[^0-9]/g, "") || 0)}
+                  />
+                </Form.Item>
+              </div>
+            ))}
+            <Button
+              type="primary"
+              onClick={() => {
+                setOpenDrawer({ ...openDrawer, [tipe]: false });
+              }}
+            >
+              Simpan
+            </Button>
+          </Drawer>
+        ))}
         <div className="flex flex-col md:flex-row w-full gap-4">
           <Form.Item
             label="Nama"
@@ -241,37 +236,23 @@ export default function TambahProduk({ notificationApi }: Props) {
 
         <Form.Item rules={[{ required: true, message: "Ukuran produk harus diisi" }]} label="Ukuran Tersedia">
           <Select
-            mode="multiple"
+            mode="tags"
             value={ukuran}
             onChange={setUkuran}
             onSelect={(value) => {
-              const detailFullset = (form?.getFieldValue("detail_fullset") || []) as CreateProdukDetail[];
-              const detailMatras = (form?.getFieldValue("detail_matras") || []) as CreateProdukDetail[];
-
-              const newDetailFullset = [...detailFullset, { tipe: "Fullset", ukuran: value, harga: undefined }];
-              const newDetailMatras = [...detailMatras, { tipe: "Matras Only", ukuran: value, harga: undefined }];
-
-              form.setFieldsValue({
-                detail_fullset: newDetailFullset,
-                detail_matras: newDetailMatras,
+              types.forEach((type) => {
+                const parse = type.toLowerCase().replace(" ", "_");
+                const detail = form.getFieldValue(`detail_${parse}`) as CreateProdukDetail[];
+                const newDetail = [...detail, { ukuran: value, harga: undefined, tipe: type }];
+                form.setFieldValue(`detail_${parse}`, newDetail);
               });
             }}
             onDeselect={(value) => {
-              console.log("deselect", value);
-              const detailFullset = form.getFieldValue("detail_fullset") as CreateProdukDetail[];
-              const detailMatras = form.getFieldValue("detail_matras") as CreateProdukDetail[];
-
-              const filteredDetailFullset = detailFullset.filter((item) => item.ukuran !== value);
-              const filteredDetailMatras = detailMatras.filter((item) => item.ukuran !== value);
-
-              console.log({
-                detail_fullset: filteredDetailFullset,
-                detail_matras: filteredDetailMatras,
-              });
-
-              form.setFieldsValue({
-                detail_fullset: filteredDetailFullset,
-                detail_matras: filteredDetailMatras,
+              types.forEach((type) => {
+                const parse = type.toLowerCase().replace(" ", "_");
+                const detail = form.getFieldValue(`detail_${parse}`) as CreateProdukDetail[];
+                const newDetail = detail.filter((item) => item.ukuran !== value);
+                form.setFieldValue(`detail_${parse}`, newDetail);
               });
             }}
             className="w-full"
@@ -291,29 +272,55 @@ export default function TambahProduk({ notificationApi }: Props) {
         </Form.Item>
 
         <div className="flex gap-3">
-          <Button disabled={ukuran.length === 0} onClick={() => setOpenFullset(true)} type="default">
-            <span>Input Harga Fullset</span>
-            {(form?.getFieldValue("detail_fullset") || []).every((item: CreateProdukDetail) =>
-              item?.harga ? item.harga > 0 : false
-            ) ? (
-              <CheckCircleOutlined style={{ color: "#97d895" }} className="text-success" />
-            ) : null}
-          </Button>
-          <Button onClick={() => setOpenMatras(true)} disabled={ukuran.length === 0} type="default">
-            <span>Input Harga Matras</span>
-            {(form?.getFieldValue("detail_matras") || []).every((item: CreateProdukDetail) =>
-              item?.harga ? item.harga > 0 : false
-            ) ? (
-              <CheckCircleOutlined style={{ color: "#97d895" }} className="text-success" />
-            ) : null}
-          </Button>
+          {types.map((item, index) => (
+            <Button
+              className="relative"
+              key={`tipe-${index}`}
+              // disabled={ukuran.length === 0}
+              onClick={() => {
+                setOpenDrawer({ ...openDrawer, [item]: true });
+              }}
+              type="default"
+            >
+              <span>Input Harga {item}</span>
+              <span
+                className="absolute h-5 text-red-500 -top-2 -right-2 text-lg cursor-pointer bg-white rounded-full"
+                onClick={() => {
+                  form.setFieldValue(`detail_${item.toLowerCase().replace(" ", "_")}`, []);
+
+                  const newTypes = types.filter((type) => type !== item);
+                  setTypes(newTypes);
+                }}
+              >
+                <IoIosCloseCircle />
+              </span>
+            </Button>
+          ))}
+          <Input
+            className="w-40"
+            placeholder="Masukkan tipe baru"
+            onFocus={(e) => e.target.select()}
+            onKeyUp={(e) => {
+              if (e.key === "Enter") {
+                setTypes([...types, e.currentTarget.value]);
+                setOpenDrawer({ ...openDrawer, [e.currentTarget.value]: false });
+
+                const parse = e.currentTarget.value.toLowerCase().replace(" ", "_");
+
+                form.setFieldValue(`detail_${parse}`, []);
+
+                e.currentTarget.value = "";
+              }
+            }}
+          />
+          <span className="text-xs text-gray-400 pointer-events-none">Enter untuk menambahkan</span>
         </div>
 
         <div className="my-8">
           <FileUpload setFile={(allFiles) => setFiles(allFiles)} />
         </div>
 
-        <Button size="large" type="primary" htmlType="submit" loading={loading} disabled={loading}>
+        <Button size="large" type="primary" onClick={handleSubmit} loading={loading} disabled={loading}>
           Simpan Produk
         </Button>
       </Form>

@@ -43,7 +43,7 @@ export interface KategoriProduk {
   updated_at: string;
 }
 
-export interface CreateProdukRequest {
+export type CreateProdukRequest = {
   nama: string;
   kode: string;
   deskripsi: string;
@@ -51,9 +51,8 @@ export interface CreateProdukRequest {
   kategori_produk_id: string;
   image_url: string[];
   produk_detail: CreateProdukDetail[];
-  detail_fullset: CreateProdukDetail[];
-  detail_matras: CreateProdukDetail[];
-}
+  [x: string]: any;
+};
 
 export interface CreateProdukDetail {
   tipe: string;
