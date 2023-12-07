@@ -1,7 +1,7 @@
 "use client";
 
 import useQuery from "@/hooks/useQuery";
-import { Descriptions, Image, Input, InputNumber, Modal, Select, Skeleton, Switch, Table } from "antd";
+import { Descriptions, Image, Input, InputNumber, Modal, Select, Skeleton, Switch, Table, Tooltip } from "antd";
 import React, { useCallback, useMemo } from "react";
 import SkeletonTable from "./SkeletonTable";
 import { KategoriProduk, LokasiProduk, Produk, ProdukDetail } from "@/types/produk.type";
@@ -12,6 +12,10 @@ import { parseToOption } from "@/lib/helpers/parseToOption";
 import useMutation from "@/hooks/useMutation";
 import _ from "lodash";
 import { DescriptionsItemType } from "antd/es/descriptions";
+import FileUpload from "./Upload";
+import { IoIosCloseCircle } from "react-icons/io";
+import Cookies from "js-cookie";
+import fetcher from "@/lib/axios";
 
 type Props = {
   produkId: string;
@@ -23,7 +27,11 @@ const UKURAN_OPTION = ["90x200", "100x200", "120x200", "160x200", "180x200", "20
 export default function ProdukModal({ refetch, open, produkId, onClose }: Props) {
   if (!produkId) return null;
 
-  const { data, loading, error } = useQuery<Produk>(`/api/admin/produk/${produkId}`, {
+  const {
+    data,
+    loading,
+    refetch: refetchDetail,
+  } = useQuery<Produk>(`/api/admin/produk/${produkId}`, {
     trigger: open,
   });
   const { data: kategori, loading: loadingKategori } = useQuery<KategoriProduk[]>("/api/admin/kategori", {
@@ -288,6 +296,57 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
     },
   ];
 
+  const deleteImage = async (image: string) => {
+    try {
+      const jwt = Cookies.get("jwt");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/upload/produk`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          produk_id: data?.id,
+          filename: image,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) throw new Error(json?.message || "Gagal menghapus gambar produk");
+
+      refetchDetail();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const uploadImage = async (files: File[]) => {
+    const jwt = Cookies.get("jwt");
+    const formData = new FormData();
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    formData.append("produk_id", data?.id || "");
+
+    const resUpload = await fetcher
+      .post(`/api/admin/upload/produk`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${jwt}`,
+        },
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    if (resUpload) {
+      refetchDetail();
+    }
+  };
+
   return (
     <Modal
       okButtonProps={{ hidden: true, style: { display: "none" } }}
@@ -315,14 +374,29 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
             <p className="font-bold text-base">Gambar Produk</p>
             <Image.PreviewGroup>
               {data?.image_url?.map((item, idx) => (
-                <Image
-                  key={`gambar-produk-${idx}`}
-                  src={item}
-                  width={200}
-                  height={200}
-                  className="object-cover object-center rounded-md"
-                />
+                <div key={`produk-image-${idx}`} className="w-[200px] h-[200px] relative inline-block mr-3 mb-3">
+                  <Image
+                    key={`gambar-produk-${idx}`}
+                    src={item}
+                    width={200}
+                    height={200}
+                    className="object-cover object-center rounded-md relative"
+                  />
+                  <Tooltip className="absolute -top-2 -right-2" title="Hapus gambar">
+                    <span
+                      className="z-30 h-6 text-red-500  text-2xl cursor-pointer bg-white rounded-full"
+                      onClick={() => {
+                        deleteImage(item);
+                      }}
+                    >
+                      <IoIosCloseCircle />
+                    </span>
+                  </Tooltip>
+                </div>
               ))}
+              <div>
+                <FileUpload setFile={(files) => uploadImage(files)} className="w-[200px] h-[200px]" />
+              </div>
             </Image.PreviewGroup>
           </div>
 

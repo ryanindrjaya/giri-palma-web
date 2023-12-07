@@ -16,12 +16,13 @@ const props: UploadProps = {
 
 type Props = {
   setFile: (file: any) => void;
+  className?: string;
 };
 
-const FileUpload: React.FC<Props> = ({ setFile }) => (
+const FileUpload: React.FC<Props> = ({ setFile, className }) => (
   <Dragger
     {...props}
-    className="w-1/2"
+    className={className}
     onChange={(info) => {
       const { status } = info.file;
       if (status !== "uploading") {

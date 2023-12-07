@@ -317,7 +317,7 @@ export default function TambahProduk({ notificationApi }: Props) {
         </div>
 
         <div className="my-8">
-          <FileUpload setFile={(allFiles) => setFiles(allFiles)} />
+          <FileUpload className="w-1/2" setFile={(allFiles) => setFiles(allFiles)} />
         </div>
 
         <Button size="large" type="primary" onClick={handleSubmit} loading={loading} disabled={loading}>
