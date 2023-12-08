@@ -115,7 +115,14 @@ export default function TambahProduk({ notificationApi }: Props) {
 
         delete values[`detail_${parse}`];
 
-        return detail;
+        const detailWithType = detail.map((detail) => {
+          return {
+            ...detail,
+            tipe: type,
+          };
+        });
+
+        return detailWithType;
       })
       .flat();
 

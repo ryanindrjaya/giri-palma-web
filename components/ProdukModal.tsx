@@ -22,9 +22,9 @@ type Props = {
   open: boolean;
   onClose: () => void;
   refetch?: () => void;
+  readOnly?: boolean;
 };
-const UKURAN_OPTION = ["90x200", "100x200", "120x200", "160x200", "180x200", "200x200"];
-export default function ProdukModal({ refetch, open, produkId, onClose }: Props) {
+export default function ProdukModal({ refetch, open, produkId, onClose, readOnly = false }: Props) {
   if (!produkId) return null;
 
   const {
@@ -74,7 +74,9 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
         {
           key: "nama",
           label: "Nama",
-          children: (
+          children: readOnly ? (
+            data.nama
+          ) : (
             <Input
               type="text"
               defaultValue={data.nama}
@@ -96,7 +98,9 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
         {
           key: "kategori",
           label: "Kategori",
-          children: (
+          children: readOnly ? (
+            data.kategori_produk?.nama
+          ) : (
             <Select
               className="w-full"
               suffixIcon={null}
@@ -114,7 +118,9 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
         {
           key: "lokasi",
           label: "Lokasi",
-          children: (
+          children: readOnly ? (
+            data.lokasi_produk?.map((item) => item.nama).join(", ")
+          ) : (
             <Select
               mode="multiple"
               className="w-full"
@@ -145,7 +151,13 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
         {
           key: "on_promo",
           label: "On Promo",
-          children: (
+          children: readOnly ? (
+            data.on_promo ? (
+              "Ya"
+            ) : (
+              "Tidak"
+            )
+          ) : (
             <Switch
               checkedChildren="Ya"
               unCheckedChildren="Tidak"
@@ -164,7 +176,9 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
         {
           key: "deskripsi",
           label: "Deskripsi",
-          children: (
+          children: readOnly ? (
+            data.deskripsi
+          ) : (
             <Input.TextArea
               className="w-full"
               defaultValue={data.deskripsi}
@@ -193,7 +207,9 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
       title: "Sub Tipe",
       width: 200,
       render: (text, item) => {
-        return (
+        return readOnly ? (
+          item.ukuran
+        ) : (
           <Input
             className="w-full"
             defaultValue={item.ukuran}
@@ -217,7 +233,9 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
       title: "Diskon 1",
       width: 100,
       render: (text, item) => {
-        return (
+        return readOnly ? (
+          item.diskon1 + "%"
+        ) : (
           <InputNumber
             className="w-full"
             defaultValue={item.diskon1}
@@ -244,7 +262,9 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
       title: "Diskon 2",
       width: 100,
       render: (text, item) => {
-        return (
+        return readOnly ? (
+          item.diskon2 + "%"
+        ) : (
           <InputNumber
             className="w-full"
             defaultValue={item.diskon2}
@@ -271,7 +291,9 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
       title: "Harga",
       width: 200,
       render: (text, item) => {
-        return (
+        return readOnly ? (
+          `RP ${parseHarga(item.harga)}`
+        ) : (
           <InputNumber
             className="w-full"
             prefix="Rp "
@@ -382,20 +404,24 @@ export default function ProdukModal({ refetch, open, produkId, onClose }: Props)
                     height={200}
                     className="object-cover object-center rounded-md relative"
                   />
-                  <Tooltip className="absolute -top-2 -right-2" title="Hapus gambar">
-                    <span
-                      className="z-30 h-6 text-red-500  text-2xl cursor-pointer bg-white rounded-full"
-                      onClick={() => {
-                        deleteImage(item);
-                      }}
-                    >
-                      <IoIosCloseCircle />
-                    </span>
-                  </Tooltip>
+                  {readOnly ? null : (
+                    <Tooltip className="absolute -top-2 -right-2" title="Hapus gambar">
+                      <span
+                        className="z-30 h-6 text-red-500  text-2xl cursor-pointer bg-white rounded-full"
+                        onClick={() => {
+                          deleteImage(item);
+                        }}
+                      >
+                        <IoIosCloseCircle />
+                      </span>
+                    </Tooltip>
+                  )}
                 </div>
               ))}
               <div>
-                <FileUpload setFile={(files) => uploadImage(files)} className="w-[200px] h-[200px]" />
+                {readOnly ? null : (
+                  <FileUpload setFile={(files) => uploadImage(files)} className="w-[200px] h-[200px]" />
+                )}
               </div>
             </Image.PreviewGroup>
           </div>

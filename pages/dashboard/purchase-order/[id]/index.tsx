@@ -298,7 +298,7 @@ export default function DetailPesanan({ id }: Props) {
         overrideBreadcrumb={data?.nomor_pembelian}
         title={"Detail Pembelian"}
       >
-        <ProdukModal open={!!produkId} onClose={() => setProdukId(null)} produkId={produkId || ""} />
+        <ProdukModal readOnly open={!!produkId} onClose={() => setProdukId(null)} produkId={produkId || ""} />
 
         <Descriptions size="small" column={4} bordered title="Pembelian" items={descriptionPesanan} />
         <div className="h-4" />

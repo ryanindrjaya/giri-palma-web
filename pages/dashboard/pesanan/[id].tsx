@@ -306,7 +306,7 @@ export default function DetailPesanan({ id }: Props) {
         </div>
       }
     >
-      <ProdukModal open={!!produkId} onClose={() => setProdukId(null)} produkId={produkId || ""} />
+      <ProdukModal readOnly open={!!produkId} onClose={() => setProdukId(null)} produkId={produkId || ""} />
 
       <Descriptions size="small" column={4} bordered title="Pesanan" items={descriptionPesanan} />
       <div className="h-4" />
