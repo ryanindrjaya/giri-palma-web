@@ -21,6 +21,7 @@ export interface ProdukDetail {
   detail_id: string;
   tipe: string;
   diskon1: number;
+  set_as_display: boolean;
   diskon2: number;
   ukuran: string;
   harga: number;

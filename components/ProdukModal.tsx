@@ -1,8 +1,8 @@
 "use client";
 
 import useQuery from "@/hooks/useQuery";
-import { Descriptions, Image, Input, InputNumber, Modal, Select, Skeleton, Switch, Table, Tooltip } from "antd";
-import React, { useCallback, useMemo } from "react";
+import { Descriptions, Image, Input, InputNumber, Modal, Radio, Select, Skeleton, Switch, Table, Tooltip } from "antd";
+import React, { useCallback, useMemo, useState } from "react";
 import SkeletonTable from "./SkeletonTable";
 import { KategoriProduk, LokasiProduk, Produk, ProdukDetail } from "@/types/produk.type";
 import dayjs from "dayjs";
@@ -27,6 +27,7 @@ type Props = {
 export default function ProdukModal({ refetch, open, produkId, onClose, readOnly = false }: Props) {
   if (!produkId) return null;
 
+  const [hargaDisplay, setHargaDisplay] = useState<string | undefined>();
   const {
     data,
     loading,
@@ -57,6 +58,10 @@ export default function ProdukModal({ refetch, open, produkId, onClose, readOnly
 
         return acc;
       }, []);
+
+      if (detailData.length > 0) {
+        setHargaDisplay(detailData.find((item) => item.set_as_display)?.detail_id);
+      }
 
       return types.reduce<{ [key: string]: ProdukDetail[] }>((acc, curr) => {
         acc[curr] = detailData.filter((item) => item.tipe === curr);
@@ -313,6 +318,37 @@ export default function ProdukModal({ refetch, open, produkId, onClose, readOnly
             formatter={(value) => parseHarga(value || 0)}
             parser={(value) => Number(value?.replace(/[^0-9]/g, "") || 0)}
           />
+        );
+      },
+    },
+    {
+      key: "set_on_display",
+      title: "Harga Display",
+      align: "center",
+      width: 100,
+      render: (text, item) => {
+        return readOnly ? (
+          item.set_as_display ? (
+            <span className="text-green-500">Ya</span>
+          ) : (
+            <span className="text-red-500">Tidak</span>
+          )
+        ) : (
+          <Tooltip title="Set Harga Display">
+            <Radio
+              checked={item.detail_id === hargaDisplay}
+              onChange={() => {
+                setHargaDisplay(item.detail_id);
+                const detailBody: ProdukDetail = {
+                  ...item,
+                  set_as_display: true,
+                };
+                edit({ produk_detail: [detailBody] }).catch((err) => {
+                  console.error("Error edit harga display produk: ", err);
+                });
+              }}
+            />
+          </Tooltip>
         );
       },
     },
