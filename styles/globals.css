@@ -33,3 +33,8 @@ span {
   background-color: var(--primary) !important;
   color: white !important;
 }
+
+.ant-upload-wrapper {
+  flex-direction: column !important;
+  align-items: start !important;
+}

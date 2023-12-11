@@ -8,11 +8,18 @@ import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import fetcher from "@/lib/axios";
 
-type Props = {
-  onSelect: (value: Produk) => void;
+type Option = {
+  label: string;
+  value: string;
 };
 
-export default function ProdukSearch({ onSelect }: Props) {
+type Props = {
+  onSelect: (value: Produk) => void;
+  clearOnSelect?: boolean;
+  defaultValue?: Option;
+};
+
+export default function ProdukSearch({ onSelect, clearOnSelect = true, defaultValue }: Props) {
   const [search, setSearch] = useState<string>("");
   const debounced = useDebounce(search, 500);
   const [selected, setSelected] = useState<string | null>();
@@ -34,7 +41,9 @@ export default function ProdukSearch({ onSelect }: Props) {
       });
 
       onSelect(res.data.data as Produk);
-      setSelected(null);
+      if (clearOnSelect) {
+        setSelected(null);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -51,6 +60,7 @@ export default function ProdukSearch({ onSelect }: Props) {
         setSelected(e);
         getProduk(e);
       }}
+      defaultValue={defaultValue ? defaultValue.value : undefined}
       suffixIcon={<SearchOutlined />}
       showSearch
       className="w-full"

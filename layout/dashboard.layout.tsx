@@ -64,7 +64,6 @@ export default function DashboardLayout({
               label: "Daftar Produk",
               onClick: () => router.push("/dashboard/produk"),
             },
-
             {
               key: "lokasi",
               label: "Lokasi Produk",
@@ -74,6 +73,11 @@ export default function DashboardLayout({
               key: "kategori-produk",
               label: "Kategori Produk",
               onClick: () => router.push("/dashboard/kategori-produk"),
+            },
+            {
+              key: "banner",
+              label: "Banner Promo",
+              onClick: () => router.push("/dashboard/banner"),
             },
           ],
         },
