@@ -143,7 +143,10 @@ const PrintPO = React.forwardRef(({ data }: Props, ref: any) => {
         <tr>
           <td className="px-2" colSpan={5} style={rightBorder}>
             <div className="flex justify-between">
-              <p className="m-0 text-xs">Tgl Pengiriman: </p>
+              <div className="flex gap-1">
+                <p className="m-0 text-xs">Catatan: </p>
+                <p className="m-0 text-xs">{data?.catatan}</p>
+              </div>
               <p className="m-0 text-xs font-bold">JUMLAH</p>
             </div>
           </td>
