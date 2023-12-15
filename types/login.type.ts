@@ -30,5 +30,15 @@ export interface User {
 }
 
 export interface Role {
+  id: string;
   nama: string;
+  master_lokasi: boolean;
+  master_pengguna: boolean;
+  master_pelanggan: boolean;
+  master_produk: boolean;
+  inventory: boolean;
+  pesanan: boolean;
+  pembelian: boolean;
+  created_at: string;
+  updated_at: string;
 }

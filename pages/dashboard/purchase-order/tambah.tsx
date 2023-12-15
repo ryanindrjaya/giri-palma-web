@@ -560,7 +560,7 @@ export default function TambahPO({ notificationApi }: Props) {
             </Form.Item>
             <Form.Item
               rules={requiredRule}
-              label="Status Pengiriman"
+              label="Status Pembayaran"
               name="status_pembayaran"
               initialValue="Belum Bayar"
             >

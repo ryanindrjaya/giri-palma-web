@@ -139,7 +139,7 @@ export default function PurchaseOrder({ notificationApi }: Props) {
     },
     {
       title: "Pelanggan",
-      dataIndex: ["pelanggan", "nama"],
+      dataIndex: ["pelanggan", "nama_merchant"],
       key: "pelanggan",
     },
     {

@@ -82,6 +82,13 @@ export default function DashboardLayout({
           ],
         },
         {
+          key: "pengguna",
+          icon: <UserOutlined />,
+          label: "Pengguna",
+          className: inria.className,
+          onClick: () => router.push("/dashboard/pengguna"),
+        },
+        {
           key: "pelanggan",
           icon: <FiUsers />,
           label: "Pelanggan",

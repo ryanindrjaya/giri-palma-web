@@ -6,7 +6,7 @@ import { ColumnsType } from "antd/es/table";
 import { Button, Popconfirm, Table, Tag, Tooltip } from "antd";
 import dayjs from "dayjs";
 import React, { useMemo } from "react";
-import { CheckOutlined } from "@ant-design/icons";
+import { CheckOutlined, DollarOutlined } from "@ant-design/icons";
 import useMutation from "@/hooks/useMutation";
 import { NotificationInstance } from "antd/es/notification/interface";
 
@@ -37,6 +37,17 @@ export default function pembayaran({ id, notificationApi }: Props) {
       refetch();
     },
   });
+  const [createPembayaran, { loading: loadingCreate }] = useMutation("/api/admin/pembayaran/create", "post", {
+    onSuccess: () => {
+      notificationApi.success({
+        message: "Berhasil",
+        description: "Berhasil melakukan pembayaran",
+        placement: "topRight",
+      });
+
+      refetch();
+    },
+  });
 
   const pembayaran = useMemo<RiwayatPembayaran[] | undefined>(() => {
     if (!data) return;
@@ -61,6 +72,23 @@ export default function pembayaran({ id, notificationApi }: Props) {
     };
 
     verifPembayaran(body).catch((err) => {
+      notificationApi.error({
+        message: "Error",
+        description: err?.response?.data?.message || "Terjadi Kesalahan",
+        placement: "topRight",
+      });
+    });
+  };
+
+  const handleCreatePembayaran = (pembayaran_id: string) => {
+    const body = {
+      pembelian_id: id,
+      pembayaran_id,
+    };
+
+    console.log(body);
+
+    createPembayaran(body).catch((err) => {
       notificationApi.error({
         message: "Error",
         description: err?.response?.data?.message || "Terjadi Kesalahan",
@@ -119,20 +147,40 @@ export default function pembayaran({ id, notificationApi }: Props) {
       key: "action",
       align: "center",
       render: (_, record) => {
-        return record.is_confirmed || !record.is_paid ? null : (
-          <Popconfirm
-            placement="left"
-            title="Verifikasi Pembayaran"
-            description="Apakah anda yakin ingin memverifikasi pembayaran ini?"
-            onConfirm={() => handleVerifPembayaran(record.id)}
-            okButtonProps={{ loading: loadingVerif }}
-            okText="Ya"
-            cancelText="Tidak"
-          >
-            <Button type="primary">
-              <CheckOutlined />
-            </Button>
-          </Popconfirm>
+        return (
+          <div className="flex gap-2 justify-center">
+            {record.is_confirmed || !record.is_paid ? null : (
+              <Popconfirm
+                placement="left"
+                title="Verifikasi Pembayaran"
+                description="Apakah anda yakin ingin memverifikasi pembayaran ini?"
+                onConfirm={() => handleVerifPembayaran(record.id)}
+                okButtonProps={{ loading: loadingVerif }}
+                okText="Ya"
+                cancelText="Tidak"
+              >
+                <Button type="primary">
+                  <CheckOutlined />
+                </Button>
+              </Popconfirm>
+            )}
+
+            {!record.is_paid ? (
+              <Popconfirm
+                placement="left"
+                title="Lakukan Pembayaran"
+                description="Apakah anda yakin ingin melakukan pembayaran ini?"
+                onConfirm={() => handleCreatePembayaran(record.id)}
+                okButtonProps={{ loading: loadingCreate }}
+                okText="Ya"
+                cancelText="Tidak"
+              >
+                <Button type="primary">
+                  <DollarOutlined />
+                </Button>
+              </Popconfirm>
+            ) : null}
+          </div>
         );
       },
     },

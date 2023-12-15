@@ -1,5 +1,5 @@
 import DashboardLayout, { inria } from "@/layout/dashboard.layout";
-import { Button, Descriptions, DescriptionsProps, Input, Popconfirm, Table, Tag, Tooltip } from "antd";
+import { Button, Descriptions, DescriptionsProps, Input, Popconfirm, Popover, Table, Tag, Tooltip } from "antd";
 import { GiSettingsKnobs } from "react-icons/gi";
 import { AiOutlinePlus, AiOutlineEdit } from "react-icons/ai";
 import React, { useState, useEffect } from "react";
@@ -21,6 +21,7 @@ import { parseHarga } from "@/lib/helpers/parseNumber";
 import { BiPurchaseTag } from "react-icons/bi";
 import { FaInfoCircle } from "react-icons/fa";
 import Link from "next/link";
+import { MenuOutlined } from "@ant-design/icons";
 type Props = {
   notificationApi: NotificationInstance;
 };
@@ -29,12 +30,14 @@ export const PESANAN_COLOR = {
   Dipesan: "#F2D8D8",
   Dikirim: "#F2ECB3",
   Terkirim: "#B9E7A3",
+  Dibatalkan: "red-inverse",
 };
 
 export const PESANAN_TEXT_COLOR = {
   Dipesan: "#B87070",
   Dikirim: "#5E5E5E",
   Terkirim: "#3A4F26",
+  Dibatalkan: "#FFFFFF",
 };
 
 export const PESANAN_ICON = {
@@ -117,6 +120,9 @@ export default function Pesanan({ notificationApi }: Props) {
           case "Belum Lunas":
             color = "red";
             break;
+          case "Dibatalkan":
+            color = "red-inverse";
+            break;
           default:
             color = "blue";
             break;
@@ -148,34 +154,58 @@ export default function Pesanan({ notificationApi }: Props) {
       title: "Action",
       align: "center",
       render: (_, item) => (
-        <div className="flex justify-center items-center gap-2">
-          <Tooltip title="Lihat Detail">
-            <Link href={`/dashboard/pesanan/${item.id}`}>
-              <Button type="primary" className="flex p-1 justify-center items-center">
-                <FaInfoCircle size={18} />
-              </Button>
-            </Link>
-          </Tooltip>
-          {!item.paired ? (
-            <Tooltip title="Jadikan PO">
-              <Popconfirm
-                disabled={item.paired}
-                okText="Ya"
-                cancelText="Tidak"
-                onConfirm={() => router.push(`/dashboard/purchase-order/tambah?ref=${item.id}`)}
-                title={`Jadikan pesanan ${item.nomor_pesanan} menjadi PO?`}
-                description="Apakah anda yakin ingin meneruskan status pesanan menjadi PO?"
-                trigger="click"
-                className={`${item.status === "Dipesan" ? "block" : "hidden"}`}
-                placement="left"
-              >
-                <Button type="primary" disabled={item.paired} className="flex p-1 justify-center items-center">
-                  <BiPurchaseTag size={18} />
-                </Button>
-              </Popconfirm>
-            </Tooltip>
-          ) : null}
-        </div>
+        <Popover
+          trigger="click"
+          placement="bottomLeft"
+          content={
+            <div className="flex justify-center items-center gap-2">
+              <Tooltip title="Lihat Detail">
+                <Link href={`/dashboard/pesanan/${item.id}`}>
+                  <Button type="primary" className="flex p-1 justify-center items-center">
+                    <FaInfoCircle size={18} />
+                  </Button>
+                </Link>
+              </Tooltip>
+              {!item.paired && item.status !== "Dibatalkan" ? (
+                <>
+                  <Tooltip title="Edit Pesanan">
+                    <Button
+                      onClick={() => router.push(`/dashboard/pesanan/${item.id}/edit`)}
+                      type="primary"
+                      className="flex p-1 justify-center items-center"
+                    >
+                      <AiOutlineEdit size={18} />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Jadikan PO">
+                    <Popconfirm
+                      disabled={item.paired}
+                      okText="Ya"
+                      cancelText="Tidak"
+                      onConfirm={() => router.push(`/dashboard/purchase-order/tambah?ref=${item.id}`)}
+                      title={`Jadikan pesanan ${item.nomor_pesanan} menjadi PO?`}
+                      description="Apakah anda yakin ingin meneruskan status pesanan menjadi PO?"
+                      trigger="click"
+                      className={`${item.status === "Dipesan" ? "block" : "hidden"}`}
+                      placement="left"
+                    >
+                      <Button type="primary" disabled={item.paired} className="flex p-1 justify-center items-center">
+                        <BiPurchaseTag size={18} />
+                      </Button>
+                    </Popconfirm>
+                  </Tooltip>
+                </>
+              ) : null}
+            </div>
+          }
+        >
+          <Button className="relative">
+            <MenuOutlined className="cursor-pointer" />
+            {!item.paired && item.status !== "Dibatalkan" ? (
+              <div className="absolute w-3 h-3 bg-primary rounded-full -top-1 -right-1"></div>
+            ) : null}
+          </Button>
+        </Popover>
       ),
     },
   ];

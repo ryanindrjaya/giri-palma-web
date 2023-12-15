@@ -12,6 +12,7 @@ import { parseHarga } from "@/lib/helpers/parseNumber";
 import FileUpload from "@/components/Upload";
 import { IoIosCloseCircle } from "react-icons/io";
 import { NotificationInstance } from "antd/es/notification/interface";
+import { getData } from "@/lib/fetcher/getData";
 
 type Props = {
   notificationApi: NotificationInstance;
@@ -108,6 +109,14 @@ export default function TambahProduk({ notificationApi }: Props) {
   const handleSubmit = async () => {
     const values = await form.validateFields();
 
+    const lokasi = [];
+
+    const jwt = Cookies.get("jwt");
+    for (const id of values.lokasi_produk_id) {
+      const dataLokasi = await getData<LokasiProduk>(`/lokasi-produk/${id}`, jwt || "");
+      lokasi.push(dataLokasi);
+    }
+
     const produkDetail = types
       .map((type) => {
         const parse = type.toLowerCase().replace(" ", "_");
@@ -128,6 +137,7 @@ export default function TambahProduk({ notificationApi }: Props) {
 
     const body = {
       ...values,
+      lokasi_produk: lokasi,
       produk_detail: produkDetail,
     };
 
@@ -219,6 +229,7 @@ export default function TambahProduk({ notificationApi }: Props) {
           >
             <Select
               showSearch
+              mode="multiple"
               placeholder="Pilih lokasi produk"
               optionFilterProp="children"
               filterOption={filterOption}

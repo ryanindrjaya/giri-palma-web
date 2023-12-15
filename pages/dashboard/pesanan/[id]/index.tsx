@@ -7,11 +7,12 @@ import { Button, Descriptions, DescriptionsProps, Image, Table, Tag } from "antd
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import React, { useMemo, useState } from "react";
-import { PESANAN_COLOR, PESANAN_TEXT_COLOR } from ".";
+import { PESANAN_COLOR, PESANAN_TEXT_COLOR } from "..";
 import { capitalize } from "@/lib/helpers/capitalize";
 import ProdukModal from "@/components/ProdukModal";
 import { BiPurchaseTag } from "react-icons/bi";
 import { useRouter } from "next/router";
+import { AiOutlineEdit } from "react-icons/ai";
 
 export async function getServerSideProps(context: any) {
   const { id } = context.params;
@@ -100,6 +101,9 @@ export default function DetailPesanan({ id }: Props) {
       break;
     case "Belum Lunas":
       color = "red";
+      break;
+    case "Dibatalkan":
+      color = "red-inverse";
       break;
     default:
       color = "blue";
@@ -272,7 +276,16 @@ export default function DetailPesanan({ id }: Props) {
             Uang Muka (DP)
           </Table.Summary.Cell>
           <Table.Summary.Cell index={2} className="font-bold">
-            {`Rp ${parseHarga(data?.uang_muka || 0)}`}
+            {`Rp ${parseHarga((data?.uang_muka || 0) - (data?.uang_tukar_tambah || 0))}`}
+          </Table.Summary.Cell>
+        </Table.Summary.Row>
+        <Table.Summary.Row>
+          <Table.Summary.Cell index={0} align="center" colSpan={5}></Table.Summary.Cell>
+          <Table.Summary.Cell index={1} className=" font-bold">
+            Uang Tukar Tambah
+          </Table.Summary.Cell>
+          <Table.Summary.Cell index={2} className="font-bold">
+            {`Rp ${parseHarga(data?.uang_tukar_tambah || 0)}`}
           </Table.Summary.Cell>
         </Table.Summary.Row>
         <Table.Summary.Row>
@@ -294,14 +307,23 @@ export default function DetailPesanan({ id }: Props) {
       title={"Detail Pesanan"}
       header={
         <div className="flex justify-end">
-          {!data?.paired ? (
-            <Button
-              icon={<BiPurchaseTag size={18} />}
-              onClick={() => router.push(`/dashboard/purchase-order/tambah?ref=${data?.id}`)}
-              type="primary"
-            >
-              Jadikan PO
-            </Button>
+          {!data?.paired && data?.status !== "Dibatalkan" ? (
+            <div className="flex gap-3">
+              <Button
+                icon={<BiPurchaseTag size={18} />}
+                onClick={() => router.push(`/dashboard/purchase-order/tambah?ref=${data?.id}`)}
+                type="primary"
+              >
+                Jadikan PO
+              </Button>
+              <Button
+                icon={<AiOutlineEdit size={18} />}
+                onClick={() => router.push(`/dashboard/pesanan/${data?.id}/edit`)}
+                type="primary"
+              >
+                Edit Pesanan
+              </Button>
+            </div>
           ) : null}
         </div>
       }
