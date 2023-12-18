@@ -1,0 +1,29 @@
+export interface Laporan {
+  kode_lokasi: string;
+  kode_pelanggan: string;
+  nama_pelanggan: string;
+  alamat_pelanggan: string;
+  nomor_hp: string;
+  nomor_pesanan: string;
+  tanggal_pesanan: string;
+  total_pesanan: number;
+  catatan_pesanan: string;
+  nama_sales: string;
+  nomor_po: string;
+  tanggal_po: string;
+  nama_user_admin: string;
+  total_produk: number;
+  total_qty: number;
+  total_nilai_po: number;
+  uang_muka: number;
+  tukar_tambah: number;
+  total_pelunasan: number;
+  sisa_pembayaran: number;
+  nomor_pembayaran: string[];
+  nama_leasing: string;
+  catatan_po: string;
+  status_pengiriman: string;
+  status_pembayaran: string;
+  nomor_surat_jalan: string;
+  tanggal_surat_jalan: string;
+}

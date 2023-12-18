@@ -15,6 +15,7 @@ import SkeletonTable from "@/components/SkeletonTable";
 import { capitalize } from "@/lib/helpers/capitalize";
 import { FaStoreAlt } from "react-icons/fa";
 import { IoDocumentAttachOutline } from "react-icons/io5";
+import { TbReportAnalytics } from "react-icons/tb";
 
 type Props = {
   children: React.ReactNode;
@@ -139,6 +140,13 @@ export default function DashboardLayout({
       label: "Inventory",
       className: inria.className,
       onClick: () => router.push("/dashboard/inventory"),
+    },
+    {
+      key: "laporan",
+      icon: <TbReportAnalytics />,
+      label: "Laporan",
+      className: inria.className,
+      onClick: () => router.push("/dashboard/laporan"),
     },
   ];
 
