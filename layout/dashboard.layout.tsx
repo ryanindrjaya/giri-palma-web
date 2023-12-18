@@ -16,6 +16,7 @@ import { capitalize } from "@/lib/helpers/capitalize";
 import { FaStoreAlt } from "react-icons/fa";
 import { IoDocumentAttachOutline } from "react-icons/io5";
 import { TbReportAnalytics } from "react-icons/tb";
+import { RiCustomerService2Fill } from "react-icons/ri";
 
 type Props = {
   children: React.ReactNode;
@@ -102,6 +103,13 @@ export default function DashboardLayout({
           label: "Leasing",
           className: inria.className,
           onClick: () => router.push("/dashboard/leasing"),
+        },
+        {
+          key: "customer-service",
+          icon: <RiCustomerService2Fill />,
+          label: "Customer Service",
+          className: inria.className,
+          onClick: () => router.push("/dashboard/customer-service"),
         },
       ],
     },
