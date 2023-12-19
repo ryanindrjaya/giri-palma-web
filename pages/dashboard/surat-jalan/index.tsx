@@ -29,6 +29,7 @@ export default function SuratJalan({ notificationApi }: Props) {
   const debouncedSearchVal = useDebounce(searchVal, 500);
   const [selectedRow, setSelectedRow] = useState<SuratJalanType[]>([]);
   const { data, loading, refetch } = useQuery<SuratJalanType[]>("/api/admin/surat-jalan");
+  const [editPembelian] = useMutation("/api/admin/pembelian", "put");
   const [deleteSuratJalan, { loading: loadingDelete }] = useMutation("/api/admin/surat-jalan", "delete", {
     onSuccess: () => {
       notificationApi.success({
@@ -40,7 +41,23 @@ export default function SuratJalan({ notificationApi }: Props) {
     },
   });
   const [cancel, { loading: loadingCancel }] = useMutation("/api/admin/surat-jalan/cancel", "post", {
-    onSuccess: () => {
+    onSuccess: (data: { data: SuratJalanType }) => {
+      const editPOBody = {
+        status: "Dipesan",
+      };
+
+      editPembelian(editPOBody, data.data?.pembelian_id).catch((err) => {
+        console.log(err);
+        notificationApi.error({
+          message: "Gagal",
+          description: err?.response?.data?.message || "Gagal mengubah status PO",
+          placement: "topRight",
+        });
+      });
+
+      setSuratJalanId(null);
+      setCancelMsg("");
+
       notificationApi.success({
         message: "Berhasil",
         description: "Berhasil membatalkan surat jalan",
@@ -49,6 +66,9 @@ export default function SuratJalan({ notificationApi }: Props) {
       refetch();
     },
   });
+
+  const [suratJalanId, setSuratJalanId] = useState<string | null>(null);
+  const [cancelMsg, setCancelMsg] = useState<string>("");
 
   const [suratJalanDetail, setSuratJalanDetail] = useState<SuratJalanType | null>(null);
   const printRef = useRef(null);
@@ -66,8 +86,8 @@ export default function SuratJalan({ notificationApi }: Props) {
     }
   }, [debouncedSearchVal]);
 
-  const batalSuratJalan = (id: string) => {
-    cancel({ id }).catch((err) => {
+  const batalSuratJalan = () => {
+    cancel({ id: suratJalanId, cancel_message: cancelMsg }).catch((err) => {
       console.log(err);
       notificationApi.error({
         message: "Gagal",
@@ -133,7 +153,7 @@ export default function SuratJalan({ notificationApi }: Props) {
             </Tooltip>
             <Tooltip title="Batalkan">
               <Button
-                onClick={() => batalSuratJalan(item.id)}
+                onClick={() => setSuratJalanId(item.id)}
                 type="primary"
                 loading={loadingCancel}
                 danger
@@ -247,6 +267,23 @@ export default function SuratJalan({ notificationApi }: Props) {
         <div className="w-full flex justify-center">
           <PrintSR data={suratJalanDetail} ref={printRef} />
         </div>
+      </Modal>
+      <Modal
+        open={!!suratJalanId}
+        onOk={batalSuratJalan}
+        onCancel={() => {
+          setSuratJalanId(null);
+          setCancelMsg("");
+        }}
+        title="Batalkan Surat Jalan"
+        okText="Ya"
+        cancelText="Batal"
+        okButtonProps={{ danger: true, loading: loadingCancel }}
+      >
+        <p>
+          Harap masukkan alasan pembatalan surat jalan. Pembatalan surat jalan akan mengubah status PO menjadi 'Dipesan'
+        </p>
+        <Input.TextArea className="mt-4" rows={4} value={cancelMsg} onChange={(e) => setCancelMsg(e.target.value)} />
       </Modal>
       <DashboardLayout
         title="Surat Jalan"

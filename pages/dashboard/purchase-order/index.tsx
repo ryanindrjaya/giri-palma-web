@@ -43,6 +43,20 @@ export default function PurchaseOrder({ notificationApi }: Props) {
   const [editPembelian, { loading: loadingEdit }] = useMutation("/api/admin/pembelian", "put");
   const [postSR] = useMutation("/api/admin/surat-jalan", "post", {
     onSuccess: (data: { data: SuratJalanType }) => {
+      console.log("create SR", data);
+
+      const bodyChangeStatus = {
+        status: "Dikirim",
+      };
+
+      editPembelian(bodyChangeStatus, data.data?.pembelian_id).catch((error) => {
+        notificationApi.error({
+          message: "Gagal mengubah status pembelian",
+          description: error?.response?.data?.message || "Gagal mengubah status pembelian",
+          placement: "topRight",
+        });
+      });
+
       notificationApi.open({
         key,
         type: "success",
