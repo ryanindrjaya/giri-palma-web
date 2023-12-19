@@ -142,13 +142,13 @@ export default function DashboardLayout({
         },
       ],
     },
-    {
-      key: "inventory",
-      icon: <CiBoxes />,
-      label: "Inventory",
-      className: inria.className,
-      onClick: () => router.push("/dashboard/inventory"),
-    },
+    // {
+    //   key: "inventory",
+    //   icon: <CiBoxes />,
+    //   label: "Inventory",
+    //   className: inria.className,
+    //   onClick: () => router.push("/dashboard/inventory"),
+    // },
     {
       key: "laporan",
       icon: <TbReportAnalytics />,

@@ -119,7 +119,7 @@ export default function TambahPO({ notificationApi }: Props) {
 
         setSummary({
           total,
-          uang_muka: data?.uang_muka || 0,
+          uang_muka: (data?.uang_muka || 0) - (data?.uang_tukar_tambah || 0),
           harga_tukar_tambah: data?.uang_tukar_tambah || 0,
           sisa_pembayaran: total - (data?.uang_muka || 0) - (data?.uang_tukar_tambah || 0),
           metode_pembayaran: data?.metode_bayar || "",

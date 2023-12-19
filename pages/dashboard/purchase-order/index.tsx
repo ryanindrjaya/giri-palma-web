@@ -63,51 +63,6 @@ export default function PurchaseOrder({ notificationApi }: Props) {
   const [pembelianDetail, setPembelianDetail] = useState<DetailPembelian | null>(null);
   const printRef = useRef(null);
 
-  const statusOptions = [
-    {
-      value: "Dipesan",
-      label: (
-        <Tag
-          style={{
-            color: PESANAN_TEXT_COLOR["Dipesan"],
-          }}
-          color={PESANAN_COLOR["Dipesan"]}
-          className="flex gap-1 items-center w-fit"
-        >
-          <span className=" font-bold">Dipesan</span>
-        </Tag>
-      ),
-    },
-    {
-      value: "Dikirim",
-      label: (
-        <Tag
-          style={{
-            color: PESANAN_TEXT_COLOR["Dikirim"],
-          }}
-          color={PESANAN_COLOR["Dikirim"]}
-          className="flex gap-1 items-center w-fit"
-        >
-          <span className=" font-bold">Dikirim</span>
-        </Tag>
-      ),
-    },
-    {
-      value: "Diterima",
-      label: (
-        <Tag
-          style={{
-            color: PESANAN_TEXT_COLOR["Diterima"],
-          }}
-          color={PESANAN_COLOR["Diterima"]}
-          className="flex gap-1 items-center w-fit"
-        >
-          <span className=" font-bold">Diterima</span>
-        </Tag>
-      ),
-    },
-  ];
-
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
     pageStyle: "@page { size: A5 landscape; margin: 2mm; }",
@@ -150,12 +105,15 @@ export default function PurchaseOrder({ notificationApi }: Props) {
         const status: string = item.status;
 
         return (
-          <Select
-            loading={loadingEdit}
-            defaultValue={status}
-            onChange={(v) => changeStatus(item.id, v)}
-            options={statusOptions}
-          />
+          <Tag
+            style={{
+              color: PESANAN_TEXT_COLOR[status as keyof typeof PESANAN_TEXT_COLOR],
+            }}
+            color={PESANAN_COLOR[status as keyof typeof PESANAN_COLOR]}
+            className="flex gap-1 items-center w-fit"
+          >
+            <span className=" font-bold">{status}</span>
+          </Tag>
         );
       },
     },

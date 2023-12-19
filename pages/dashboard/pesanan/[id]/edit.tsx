@@ -246,6 +246,7 @@ export default function EditPesanan({ pesanan, pelanggan, notificationApi }: Pro
 
     return {
       ...pesanan,
+      uang_muka: (pesanan.uang_muka || 0) - (pesanan.uang_tukar_tambah || 0),
       created_at: dayjs(pesanan.created_at),
       pelanggan_id: pesanan.pelanggan.id,
     };
@@ -265,8 +266,6 @@ export default function EditPesanan({ pesanan, pelanggan, notificationApi }: Pro
         diskon2: item.detail?.diskon2,
       })),
     };
-
-    console.log(body);
 
     editPesanan(body).catch((err) => {
       notificationApi.error({
@@ -297,8 +296,8 @@ export default function EditPesanan({ pesanan, pelanggan, notificationApi }: Pro
     const total = products.reduce((acc, item) => acc + item.subtotal, 0);
 
     return (
-      <>
-        <Table.Summary.Row>
+      <Table.Summary>
+        <Table.Summary.Row key="summary-0">
           <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} colSpan={3} className="font-bold bg-primary text-white rounded-md">
             Total Nilai Pesanan
@@ -310,7 +309,7 @@ export default function EditPesanan({ pesanan, pelanggan, notificationApi }: Pro
 
         <div className="h-1" />
 
-        <Table.Summary.Row>
+        <Table.Summary.Row key="summary-1">
           <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} colSpan={3} className="font-bold bg-primary text-white rounded-t-md">
             <span>Uang Muka</span>
@@ -471,7 +470,7 @@ export default function EditPesanan({ pesanan, pelanggan, notificationApi }: Pro
             </Table.Summary.Row>
           </>
         ) : null}
-      </>
+      </Table.Summary>
     );
   };
 
