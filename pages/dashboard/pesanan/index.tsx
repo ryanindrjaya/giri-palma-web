@@ -31,12 +31,14 @@ export const PESANAN_COLOR = {
   Dikirim: "#F2ECB3",
   Terkirim: "#B9E7A3",
   Dibatalkan: "red-inverse",
+  Diterima: "green-inverse",
 };
 
 export const PESANAN_TEXT_COLOR = {
   Dipesan: "#B87070",
   Dikirim: "#5E5E5E",
   Terkirim: "#3A4F26",
+  Diterima: "#FFFFFF",
   Dibatalkan: "#FFFFFF",
 };
 
@@ -143,7 +145,12 @@ export default function Pesanan({ notificationApi }: Props) {
     {
       title: "Uang Muka (DP)",
       key: "uang_muka",
-      render: (_v, item) => `Rp ${parseHarga(item?.uang_muka || 0)}`,
+      render: (_v, item) => `Rp ${parseHarga((item?.uang_muka || 0) - (item?.uang_tukar_tambah || 0))}`,
+    },
+    {
+      title: "Tukar Tambah",
+      key: "uang_muka",
+      render: (_v, item) => `Rp ${parseHarga(item?.uang_tukar_tambah || 0)}`,
     },
     {
       title: "Catatan",

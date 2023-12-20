@@ -1,9 +1,11 @@
 import useQuery from "@/hooks/useQuery";
 import { Pelanggan } from "@/types/pelanggan.type";
-import { Descriptions, DescriptionsProps, Image, Modal } from "antd";
+import { Descriptions, DescriptionsProps, Image, InputNumber, Modal } from "antd";
 import React, { useMemo } from "react";
 import { MdOutlineOpenInNew } from "react-icons/md";
 import SkeletonTable from "./SkeletonTable";
+import useMutation from "@/hooks/useMutation";
+import _ from "lodash";
 
 type Props = {
   pelangganId: string;
@@ -21,6 +23,12 @@ export default function PelangganModal({ refetch, open, pelangganId, onClose }: 
     error,
   } = useQuery<Pelanggan>(`/api/admin/pelanggan/${pelangganId}`, {
     trigger: open,
+  });
+
+  const [edit] = useMutation(`/api/admin/pelanggan/${pelangganId}`, "put", {
+    onSuccess: () => {
+      if (refetch) refetch();
+    },
   });
 
   const dataPelanggan: DescriptionsProps["items"] = useMemo(
@@ -105,16 +113,38 @@ export default function PelangganModal({ refetch, open, pelangganId, onClose }: 
         key: "6",
         label: "Koordinat",
         children: (
-          <a
-            target="_blank"
-            href={`https://maps.google.com/?q=${pelanggan?.latitude},${pelanggan?.longitude}`}
-            className="text-blue-500 hover:text-blue-300 transition-all duration-75 items-center cursor-pointer flex gap-2"
-          >
-            <p className="">
-              {pelanggan?.latitude},&nbsp;{pelanggan?.longitude}
-            </p>
-            <MdOutlineOpenInNew size={18} />
-          </a>
+          <div>
+            <div className="flex">
+              <InputNumber
+                className="flex-1"
+                controls={false}
+                defaultValue={pelanggan?.latitude}
+                formatter={(value) => `${value}`.slice(0, 10)}
+                onChange={_.debounce((value) => {
+                  edit({ latitude: value });
+                }, 1000)}
+              />
+              <span className="flex-[0]">, </span>
+              <InputNumber
+                className="flex-1"
+                controls={false}
+                defaultValue={pelanggan?.longitude}
+                formatter={(value) => `${value}`.slice(0, 10)}
+                onChange={_.debounce((value) => {
+                  edit({ longitude: value });
+                }, 1000)}
+              />
+            </div>
+
+            <a
+              target="_blank"
+              href={`https://maps.google.com/?q=${pelanggan?.latitude},${pelanggan?.longitude}`}
+              className="text-blue-500 hover:text-blue-300 transition-all duration-75 items-center cursor-pointer flex gap-2"
+            >
+              <span>Lihat di Map</span>
+              <MdOutlineOpenInNew size={18} />
+            </a>
+          </div>
         ),
       },
     ],

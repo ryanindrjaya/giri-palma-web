@@ -59,7 +59,7 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
             defaultValue={pengguna?.nama}
             onChange={_.debounce((e) => {
               edit({ nama: e.target.value });
-            })}
+            }, 1000)}
           />
         ),
       },
@@ -72,7 +72,7 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
             defaultValue={pengguna?.username}
             onChange={_.debounce((e) => {
               edit({ username: e.target.value });
-            })}
+            }, 1000)}
           />
         ),
       },
@@ -80,7 +80,14 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
         key: "4",
         label: "Kode",
         span: 2,
-        children: pengguna?.kode,
+        children: (
+          <Input
+            defaultValue={pengguna?.kode}
+            onChange={_.debounce((e) => {
+              edit({ kode: e.target.value });
+            }, 1000)}
+          />
+        ),
       },
       {
         key: "3",
@@ -118,7 +125,7 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
             defaultValue={pengguna?.phone}
             onChange={_.debounce((e) => {
               edit({ phone: e.target.value });
-            })}
+            }, 1000)}
           />
         ),
       },
@@ -130,7 +137,7 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
             defaultValue={pengguna?.email}
             onChange={_.debounce((e) => {
               edit({ email: e.target.value });
-            })}
+            }, 1000)}
           />
         ),
         span: 2,
@@ -143,7 +150,7 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
             defaultValue={pengguna?.alamat}
             onChange={_.debounce((e) => {
               edit({ alamat: e.target.value });
-            })}
+            }, 1000)}
           />
         ),
         span: 2,

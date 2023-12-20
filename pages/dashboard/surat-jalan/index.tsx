@@ -1,5 +1,5 @@
 import DashboardLayout, { inria } from "@/layout/dashboard.layout";
-import { Button, Input, Modal, Table, Tag, Tooltip } from "antd";
+import { Button, Input, Modal, Popconfirm, Table, Tag, Tooltip } from "antd";
 import { GiSettingsKnobs } from "react-icons/gi";
 import { AiOutlinePlus } from "react-icons/ai";
 import React, { useState, useEffect, useRef } from "react";
@@ -15,7 +15,7 @@ import { useReactToPrint } from "react-to-print";
 
 import Cookies from "js-cookie";
 import fetcher from "@/lib/axios";
-import { DeleteOutlined, LoadingOutlined, StopOutlined } from "@ant-design/icons";
+import { CheckOutlined, DeleteOutlined, LoadingOutlined, StopOutlined } from "@ant-design/icons";
 import { SuratJalanType } from "@/types/surat-jalan.type";
 import PrintSR from "@/components/PrintSR";
 
@@ -97,6 +97,30 @@ export default function SuratJalan({ notificationApi }: Props) {
     });
   };
 
+  const confirmSuratJalan = (pembelianId: string) => {
+    const body = {
+      status: "Diterima",
+    };
+
+    editPembelian(body, pembelianId)
+      .then(() => {
+        notificationApi.success({
+          message: "Berhasil",
+          description: "Berhasil konfirmasi pengiriman surat jalan",
+          placement: "topRight",
+        });
+        refetch();
+      })
+      .catch((err) => {
+        console.log(err);
+        notificationApi.error({
+          message: "Gagal",
+          description: err?.response?.data?.message || "Gagal mengubah status pembelian",
+          placement: "topRight",
+        });
+      });
+  };
+
   const columns: ColumnsType<SuratJalanType> = [
     {
       title: "#",
@@ -151,6 +175,20 @@ export default function SuratJalan({ notificationApi }: Props) {
                 <FaPrint size={18} />
               </Button>
             </Tooltip>
+            <Popconfirm
+              title="Verifikasi pengiriman barang?"
+              description="Pastikan barang sudah dikirimkan ke pelanggan"
+              onConfirm={() => confirmSuratJalan(item.pembelian_id)}
+              okText="Ya"
+              cancelText="Batal"
+              placement="bottom"
+            >
+              <Tooltip title="Konfirmasi pengiriman">
+                <Button type="primary" className="flex p-1 justify-center bg-success items-center">
+                  <CheckOutlined size={18} />
+                </Button>
+              </Tooltip>
+            </Popconfirm>
             <Tooltip title="Batalkan">
               <Button
                 onClick={() => setSuratJalanId(item.id)}
@@ -163,28 +201,7 @@ export default function SuratJalan({ notificationApi }: Props) {
               </Button>
             </Tooltip>
           </div>
-        ) : (
-          <Tooltip title="Hapus">
-            <Button
-              onClick={() => {
-                deleteSuratJalan(undefined, item.id).catch((err) => {
-                  console.log(err);
-                  notificationApi.error({
-                    message: "Gagal",
-                    description: err?.response?.data?.message || "Gagal menghapus surat jalan",
-                    placement: "topRight",
-                  });
-                });
-              }}
-              type="primary"
-              loading={loadingDelete}
-              danger
-              className="flex p-1 justify-center items-center"
-            >
-              <DeleteOutlined size={18} />
-            </Button>
-          </Tooltip>
-        ),
+        ) : null,
     },
   ];
 
@@ -281,7 +298,8 @@ export default function SuratJalan({ notificationApi }: Props) {
         okButtonProps={{ danger: true, loading: loadingCancel }}
       >
         <p>
-          Harap masukkan alasan pembatalan surat jalan. Pembatalan surat jalan akan mengubah status PO menjadi 'Dipesan'
+          Harap masukkan alasan pembatalan surat jalan. Pembatalan surat jalan akan mengubah status PO menjadi
+          &apos;Dipesan&apos;
         </p>
         <Input.TextArea className="mt-4" rows={4} value={cancelMsg} onChange={(e) => setCancelMsg(e.target.value)} />
       </Modal>

@@ -40,6 +40,7 @@ type Props = {
 };
 
 interface ProductData extends Produk {
+  detail_id?: string;
   quantity: number;
   subtotal: number;
   detail: ProdukDetail;
@@ -75,7 +76,7 @@ export default function EditPesanan({ pesanan, pelanggan, notificationApi }: Pro
     },
   });
 
-  const getProduk = async (pesanan: PesananDetail) => {
+  const getProduk = async (pesanan: PesananDetail, detailId: string) => {
     try {
       const jwt = Cookies.get("jwt");
 
@@ -87,6 +88,7 @@ export default function EditPesanan({ pesanan, pelanggan, notificationApi }: Pro
 
       const item = {
         ...res.data.data,
+        detail_id: detailId,
         quantity: pesanan.quantity,
         subtotal: pesanan.subtotal || 0,
         detail: pesanan.produk_detail,
@@ -236,7 +238,7 @@ export default function EditPesanan({ pesanan, pelanggan, notificationApi }: Pro
       const produk = item.produk;
       const produkIndex = products.findIndex((item) => item.id === produk.id);
       if (produkIndex === -1) {
-        getProduk(item);
+        getProduk(item, item.detail_id);
       }
     }
 
@@ -255,10 +257,15 @@ export default function EditPesanan({ pesanan, pelanggan, notificationApi }: Pro
   const onFinish = async (values: any) => {
     const body = {
       ...values,
+      total: products.reduce((acc, item) => acc + item.subtotal, 0),
+      uang_muka: values.uang_muka + values.uang_tukar_tambah,
       metode_bayar: metodeBayar,
       pembayaran_per_minggu: pembayaranPerTermin,
       created_at: values.created_at?.toISOString(),
       pesanan_detail: products.map((item) => ({
+        subtotal: item.subtotal,
+        harga: item.detail?.harga,
+        detail_id: item?.detail_id,
         produk_id: item.id,
         produk_detail_id: item.detail?.detail_id,
         quantity: item.quantity,
@@ -266,6 +273,8 @@ export default function EditPesanan({ pesanan, pelanggan, notificationApi }: Pro
         diskon2: item.detail?.diskon2,
       })),
     };
+
+    console.log(body);
 
     editPesanan(body).catch((err) => {
       notificationApi.error({
@@ -348,28 +357,6 @@ export default function EditPesanan({ pesanan, pelanggan, notificationApi }: Pro
                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                 parser={(value) => parseFloat(`${value}`.replace(/\Rp\s?|(,*)/g, "")) as 0}
                 onFocus={(e) => e.target.select()}
-              />
-            </Form.Item>
-          </Table.Summary.Cell>
-        </Table.Summary.Row>
-
-        <div className="h-1" />
-
-        <Table.Summary.Row>
-          <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
-          <Table.Summary.Cell index={1} colSpan={3} className="font-bold bg-primary text-white rounded-md">
-            Sisa Pembayaran
-          </Table.Summary.Cell>
-          <Table.Summary.Cell index={2} colSpan={3} className="font-bold">
-            <Form.Item name="sisa_pembayaran" className="m-0" noStyle>
-              <InputNumber
-                className="w-full text-end pointer-events-none"
-                min={0}
-                readOnly
-                style={{ width: "100%" }}
-                prefix="Rp"
-                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                parser={(value) => parseFloat(`${value}`.replace(/\Rp\s?|(,*)/g, "")) as 0}
               />
             </Form.Item>
           </Table.Summary.Cell>

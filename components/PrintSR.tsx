@@ -189,7 +189,7 @@ const PrintSR = React.forwardRef(({ data }: Props, ref: any) => {
         <ul className="list-disc pl-5 text-xs">
           <li>Barang yang sudah dibeli/dipesan tidak dapat ditukar/dikembalikan</li>
           <li>DP dibawah 10% tidak dapat mengikat harga</li>
-          <li>Harga sudah termasuk PPN 10%</li>
+          <li>Harga sudah termasuk PPN 11%</li>
         </ul>
       </div>
     </section>

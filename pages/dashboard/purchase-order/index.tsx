@@ -12,7 +12,7 @@ import useMutation from "@/hooks/useMutation";
 import { useRouter } from "next/router";
 import { NotificationInstance } from "antd/es/notification/interface";
 import { MdPayment } from "react-icons/md";
-import { FaInfoCircle, FaPrint } from "react-icons/fa";
+import { FaInfoCircle, FaPrint, FaTrash } from "react-icons/fa";
 import { parseHarga } from "@/lib/helpers/parseNumber";
 import { DetailPembelian, Pembelian } from "@/types/pembelian.type";
 import Link from "next/link";
@@ -39,6 +39,20 @@ export default function PurchaseOrder({ notificationApi }: Props) {
   const [loadingSuratJalan, setLoadingSuratJalan] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Pembelian[]>([]);
   const { data, loading, refetch } = useQuery<Pembelian[]>("/api/admin/pembelian");
+  const [cancelPembelian, { loading: loadingCancel }] = useMutation("/api/admin/pembelian/cancel", "post", {
+    onSuccess: () => {
+      notificationApi.success({
+        message: "Berhasil",
+        description: "Berhasil membatalkan pembelian",
+        placement: "topRight",
+      });
+
+      setPembelianId(null);
+      setCancelMsg("");
+
+      refetch();
+    },
+  });
   const [deletePembelian, { loading: loadingDelete }] = useMutation("/api/admin/pembelian", "delete");
   const [editPembelian, { loading: loadingEdit }] = useMutation("/api/admin/pembelian", "put");
   const [postSR] = useMutation("/api/admin/surat-jalan", "post", {
@@ -73,6 +87,9 @@ export default function PurchaseOrder({ notificationApi }: Props) {
       setLoadingSuratJalan(false);
     },
   });
+
+  const [pembelianId, setPembelianId] = useState<string | null>(null);
+  const [cancelMsg, setCancelMsg] = useState<string>("");
 
   const [pembelianDetail, setPembelianDetail] = useState<DetailPembelian | null>(null);
   const printRef = useRef(null);
@@ -149,6 +166,9 @@ export default function PurchaseOrder({ notificationApi }: Props) {
           case "Belum Lunas":
             color = "red";
             break;
+          case "Dibatalkan":
+            color = "red-inverse";
+            break;
           default:
             color = "blue";
             break;
@@ -218,6 +238,16 @@ export default function PurchaseOrder({ notificationApi }: Props) {
                   className="flex p-1 justify-center items-center"
                 >
                   <IoDocumentAttachOutline size={18} />
+                </Button>
+              </Tooltip>
+              <Tooltip title="Batalkan PO">
+                <Button
+                  onClick={() => setPembelianId(item.id)}
+                  type="primary"
+                  className="flex p-1 justify-center items-center"
+                  danger
+                >
+                  <FaTrash size={18} />
                 </Button>
               </Tooltip>
             </div>
@@ -423,6 +453,34 @@ export default function PurchaseOrder({ notificationApi }: Props) {
     }
   };
 
+  const handleCancel = () => {
+    if (!cancelMsg) {
+      notificationApi.error({
+        message: "Gagal",
+        description: "Alasan pembatalan harus diisi",
+        placement: "topRight",
+      });
+      return;
+    }
+
+    if (!pembelianId) {
+      notificationApi.error({
+        message: "Gagal",
+        description: "Pembatalan tidak diketahui",
+        placement: "topRight",
+      });
+      return;
+    }
+
+    cancelPembelian({ alasan: cancelMsg }, pembelianId).catch((error) => {
+      notificationApi.error({
+        message: "Gagal",
+        description: error?.response?.data?.message || "Gagal membatalkan pembelian",
+        placement: "topRight",
+      });
+    });
+  };
+
   return (
     <>
       <Modal
@@ -439,6 +497,25 @@ export default function PurchaseOrder({ notificationApi }: Props) {
           <PrintPO data={pembelianDetail} ref={printRef} />
         </div>
       </Modal>
+
+      <Modal
+        open={!!pembelianId}
+        okButtonProps={{ loading: loadingCancel, danger: true }}
+        title="Batalkan PO"
+        okText="Ya"
+        cancelText="Batal"
+        onOk={handleCancel}
+        onCancel={() => {
+          setPembelianId(null);
+          setCancelMsg("");
+        }}
+      >
+        <p>
+          Harap masukkan alasan pembatalan PO. Pembatalan PO akan mengubah status pesanan menjadi &apos;Dipesan&apos;
+        </p>
+        <Input.TextArea className="mt-4" rows={4} value={cancelMsg} onChange={(e) => setCancelMsg(e.target.value)} />
+      </Modal>
+
       <DashboardLayout
         title="Purchase Order"
         header={
