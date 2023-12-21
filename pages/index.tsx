@@ -63,7 +63,7 @@ export default function Login() {
   return (
     <>
       <Head>
-        <title>Login | Giri Palma</title>
+        <title>Login | Blikasur</title>
       </Head>
       <main
         className={`flex items-center justify-end h-screen max-h-screen overflow-clip relative w-full ${inria.className}`}
@@ -75,8 +75,8 @@ export default function Login() {
         />
         {contextHolder}
         <div className="max-w-sm w-full h-full relative z-20 bg-white flex justify-center flex-col rounded-lg border border-gray-200 px-6 py-4">
-          <div className="flex flex-col gap-1 items-center justify-center">
-            <img src="/images/logo_gp_full.jpg" className="w-full rounded-md" />
+          <div className="flex mb-5 flex-col gap-1 items-center justify-center">
+            <img src="/images/blikasur-logo.png" className="w-full rounded-md" />
           </div>
           <Form form={form} onFinish={handleLogin} layout="vertical" className="mt-4">
             <Form.Item

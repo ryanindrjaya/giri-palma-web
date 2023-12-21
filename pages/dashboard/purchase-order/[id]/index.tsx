@@ -161,7 +161,7 @@ export default function DetailPesanan({ id }: Props) {
     },
     {
       label: "Catatan",
-      children: data?.catatan,
+      children: <span className="font-bold">{data?.catatan}</span>,
       span: 4,
     },
     {

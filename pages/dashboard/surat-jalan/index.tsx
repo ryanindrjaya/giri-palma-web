@@ -18,6 +18,7 @@ import fetcher from "@/lib/axios";
 import { CheckOutlined, DeleteOutlined, LoadingOutlined, StopOutlined } from "@ant-design/icons";
 import { SuratJalanType } from "@/types/surat-jalan.type";
 import PrintSR from "@/components/PrintSR";
+import dayjs from "dayjs";
 
 type Props = {
   notificationApi: NotificationInstance;
@@ -129,11 +130,20 @@ export default function SuratJalan({ notificationApi }: Props) {
       render: (_v, _, index) => index + 1,
     },
     {
+      title: "Tanggal Surat Jalan",
+      key: "tanggal_surat_jalan",
+      render: (_v, item) => dayjs(item.created_at).format("DD MMMM YYYY"),
+    },
+    {
       title: "Nomor Surat Jalan",
       dataIndex: "nomor_surat_jalan",
       key: "nomor_surat_jalan",
     },
-
+    {
+      title: "Nomor Pembelian",
+      dataIndex: ["pembelian", "nomor_pembelian"],
+      key: "nomor_pembelian",
+    },
     {
       title: "Status",
       key: "status",

@@ -92,7 +92,7 @@ export default function TambahPengguna({ lokasi, notificationApi, roles }: Props
             <Input.Password />
           </Form.Item>
           <Form.Item label="Kode" name="kode" rules={[{ required: true, message: "Kode harus diisi" }]}>
-            <Input readOnly />
+            <Input />
           </Form.Item>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

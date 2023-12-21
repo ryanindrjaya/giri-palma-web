@@ -121,6 +121,10 @@ export default function PelangganModal({ refetch, open, pelangganId, onClose }: 
                 defaultValue={pelanggan?.latitude}
                 formatter={(value) => `${value}`.slice(0, 10)}
                 onChange={_.debounce((value) => {
+                  if (pelanggan?.latitude) {
+                    pelanggan.latitude = value;
+                  }
+
                   edit({ latitude: value });
                 }, 1000)}
               />
@@ -131,6 +135,10 @@ export default function PelangganModal({ refetch, open, pelangganId, onClose }: 
                 defaultValue={pelanggan?.longitude}
                 formatter={(value) => `${value}`.slice(0, 10)}
                 onChange={_.debounce((value) => {
+                  if (pelanggan?.longitude) {
+                    pelanggan.longitude = value;
+                  }
+
                   edit({ longitude: value });
                 }, 1000)}
               />

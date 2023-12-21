@@ -145,7 +145,7 @@ const PrintPO = React.forwardRef(({ data }: Props, ref: any) => {
             <div className="flex justify-between">
               <div className="flex gap-1 w-1/2">
                 <p className="m-0 text-xs">Catatan: </p>
-                <p className="m-0 text-xs">{data?.catatan}</p>
+                <p className="m-0 text-xs font-bold">{data?.catatan}</p>
               </div>
               <p className="m-0 text-xs font-bold">JUMLAH</p>
             </div>

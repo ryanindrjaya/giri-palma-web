@@ -9,6 +9,7 @@ export interface Pembelian {
   status_pembayaran: string;
   status: string;
   uang_muka: number;
+  uang_tukar_tambah: number;
   total: number;
   sisa_pembayaran: number;
   riwayat_pembayaran: RiwayatPembayaran[];

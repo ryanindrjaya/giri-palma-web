@@ -25,6 +25,7 @@ import fetcher from "@/lib/axios";
 import { LoadingOutlined, MenuOutlined } from "@ant-design/icons";
 import { SuratJalanType } from "@/types/surat-jalan.type";
 import { IoDocumentAttachOutline } from "react-icons/io5";
+import dayjs from "dayjs";
 
 const key = "notification-sr";
 
@@ -124,12 +125,17 @@ export default function PurchaseOrder({ notificationApi }: Props) {
       key: "nomor_pembelian",
     },
     {
+      title: "Tanggal Pembelian",
+      key: "tanggal_pembelian",
+      render: (_v, item) => dayjs(item.created_at).format("DD MMMM YYYY"),
+    },
+    {
       title: "Pelanggan",
       dataIndex: ["pelanggan", "nama_merchant"],
       key: "pelanggan",
     },
     {
-      title: "Status",
+      title: "Status Pengiriman",
       key: "status",
       width: 150,
       render: (_v, item) => {
@@ -182,14 +188,24 @@ export default function PurchaseOrder({ notificationApi }: Props) {
       },
     },
     {
-      title: "Total Pesanan",
+      title: "Sales",
+      key: "sales",
+      dataIndex: ["user", "nama"],
+    },
+    {
+      title: "Total Pembelian",
       key: "total",
       render: (_v, item) => `Rp ${parseHarga(item?.total || 0)}`,
     },
     {
-      title: "Uang Muka (DP)",
+      title: "Uang Muka",
       key: "uang_muka",
-      render: (_v, item) => `Rp ${parseHarga(item?.uang_muka || 0)}`,
+      render: (_v, item) => `Rp ${parseHarga((item?.uang_muka || 0) - (item?.uang_tukar_tambah || 0))}`,
+    },
+    {
+      title: "Tukar Tambah",
+      key: "uang_muka",
+      render: (_v, item) => `Rp ${parseHarga(item?.uang_tukar_tambah || 0)}`,
     },
     {
       title: "Sisa Pembayaran",
