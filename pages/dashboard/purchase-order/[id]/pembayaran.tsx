@@ -52,9 +52,9 @@ export default function pembayaran({ id, notificationApi }: Props) {
   const pembayaran = useMemo<RiwayatPembayaran[] | undefined>(() => {
     if (!data) return;
 
-    if (data?.riwayat_pembayaran.length === 0) return;
+    if (data?.riwayat_pembayaran?.length === 0) return;
 
-    const sortByTanggalBayar = data.riwayat_pembayaran.sort((a, b) => {
+    const sortByTanggalBayar = data?.riwayat_pembayaran?.sort((a, b) => {
       if (a.tanggal_bayar && b.tanggal_bayar) {
         return dayjs(a.tanggal_bayar).unix() - dayjs(b.tanggal_bayar).unix();
       } else {
