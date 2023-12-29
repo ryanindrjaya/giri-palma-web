@@ -171,7 +171,7 @@ const PrintPO = React.forwardRef(({ data }: Props, ref: any) => {
             </div>
           </td>
           <td style={borderBottom} className="text-xs text-right pr-1">
-            {data?.sisa_pembayaran ? `Rp ${parseHarga(data.sisa_pembayaran)}` : ""}
+            {data?.sisa_pembayaran ? `Rp ${parseHarga(data.sisa_pembayaran)}` : "Rp 0"}
           </td>
         </tr>
       </table>
