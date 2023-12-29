@@ -46,7 +46,7 @@ export default function DetailPesanan({ id }: Props) {
   const totalPembayaran = useMemo<number>(() => {
     if (!data) return 0;
 
-    if (data?.riwayat_pembayaran.length === 0) return 0;
+    if (data?.riwayat_pembayaran?.length === 0) return 0;
 
     return data?.riwayat_pembayaran?.reduce((acc, curr) => {
       if (curr.is_paid && curr.is_confirmed) {
