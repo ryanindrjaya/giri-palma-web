@@ -114,7 +114,8 @@ export default function pembayaran({ id, notificationApi }: Props) {
       title: "Metode Pembayaran",
       key: "metode_pembayaran",
       render: (_, record) => {
-        return record.metode_bayar;
+        const leasing = data?.nama_leasing || "-";
+        return `${record.metode_bayar} (${leasing})`;
       },
     },
     {
