@@ -367,7 +367,7 @@ export default function DashboardLayout({
             <div className={inria.className}>{isLoading ? <SkeletonTable /> : children}</div>
           </Content>
           <Footer style={{ textAlign: "center", fontFamily: inria.style.fontFamily, fontWeight: 300 }}>
-            BLIKASUR ADMIN DASHBOARD v1.3.0
+            BLIKASUR DEVELOPMENT DASHBOARD v1.3.0
           </Footer>
         </Layout>
       </Layout>
