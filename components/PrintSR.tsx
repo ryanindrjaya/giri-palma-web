@@ -179,7 +179,7 @@ const PrintSR = React.forwardRef(({ data }: Props, ref: any) => {
             </div>
           </td>
           <td style={borderBottom} className="text-xs text-right pr-1">
-            {data?.pembelian?.sisa_pembayaran ? `Rp ${parseHarga(data?.pembelian?.sisa_pembayaran || 0)}` : ""}
+            {data?.pembelian?.sisa_pembayaran ? `Rp ${parseHarga(data?.pembelian?.sisa_pembayaran || 0)}` : "Rp 0"}
           </td>
         </tr>
       </table>

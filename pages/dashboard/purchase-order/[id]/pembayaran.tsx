@@ -52,9 +52,9 @@ export default function pembayaran({ id, notificationApi }: Props) {
   const pembayaran = useMemo<RiwayatPembayaran[] | undefined>(() => {
     if (!data) return;
 
-    if (data?.riwayat_pembayaran.length === 0) return;
+    if (data?.riwayat_pembayaran?.length === 0) return;
 
-    const sortByTanggalBayar = data.riwayat_pembayaran.sort((a, b) => {
+    const sortByTanggalBayar = data?.riwayat_pembayaran?.sort((a, b) => {
       if (a.tanggal_bayar && b.tanggal_bayar) {
         return dayjs(a.tanggal_bayar).unix() - dayjs(b.tanggal_bayar).unix();
       } else {
@@ -114,7 +114,9 @@ export default function pembayaran({ id, notificationApi }: Props) {
       title: "Metode Pembayaran",
       key: "metode_pembayaran",
       render: (_, record) => {
-        return record.metode_bayar;
+        const leasing = data?.nama_leasing || "-";
+        const isLeasing = record.metode_bayar.toLowerCase() === "tunai leasing";
+        return isLeasing ? `${record.metode_bayar} (${leasing})` : `${record.metode_bayar}`;
       },
     },
     {

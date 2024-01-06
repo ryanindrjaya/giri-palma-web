@@ -12,6 +12,7 @@ export interface Pembelian {
   uang_tukar_tambah: number;
   total: number;
   sisa_pembayaran: number;
+  nama_leasing?: string;
   riwayat_pembayaran: RiwayatPembayaran[];
   pembelian_detail: DetailPembelian[];
   catatan: string;
