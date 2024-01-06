@@ -32,7 +32,7 @@ export default function LaporanIndex({ notificationApi }: Props) {
     },
     {
       title: "Tanggal Pesanan",
-      render: (_, __, i) => dayjs(_.tanggal_pesanan).format("DD MMMM YYYY"),
+      render: (_, __, i) => dayjs(_.tanggal_pesanan).format("DD/MM/YYYY"),
     },
     {
       title: "No. Pesanan",
@@ -44,7 +44,7 @@ export default function LaporanIndex({ notificationApi }: Props) {
     },
     {
       title: "Tanggal PO",
-      render: (_, __, i) => dayjs(_.tanggal_po).format("DD MMMM YYYY"),
+      render: (_, __, i) => dayjs(_.tanggal_po).format("DD/MM/YYYY"),
     },
     {
       title: "No. PO",

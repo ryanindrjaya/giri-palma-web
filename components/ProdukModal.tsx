@@ -420,10 +420,10 @@ export default function ProdukModal({ refetch, open, produkId, onClose, readOnly
       ) : (
         <div>
           <p className="text-gray-400 italic m-0">
-            Dibuat pada: {dayjs(data?.created_at).format("DD MMMM YYYY HH:mm:ss")}
+            Dibuat pada: {dayjs(data?.created_at).format("DD/MM/YYYY HH:mm:ss")}
           </p>
           <p className="text-gray-400 italic m-0 mb-5">
-            Terakhir diubah: {dayjs(data?.updated_at).format("DD MMMM YYYY HH:mm:ss")}
+            Terakhir diubah: {dayjs(data?.updated_at).format("DD/MM/YYYY HH:mm:ss")}
           </p>
 
           <Descriptions column={4} size="small" bordered items={getProductDescription()} />

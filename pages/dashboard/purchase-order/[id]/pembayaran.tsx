@@ -102,7 +102,7 @@ export default function pembayaran({ id, notificationApi }: Props) {
       title: "Tanggal Bayar",
       key: "tanggal_bayar",
       render: (_, record) => {
-        return record.tanggal_bayar ? dayjs(record.tanggal_bayar).format("DD MMMM YYYY") : "-";
+        return record.tanggal_bayar ? dayjs(record.tanggal_bayar).format("DD/MM/YYYY") : "-";
       },
     },
     {

@@ -14,19 +14,9 @@ import { BiPurchaseTag } from "react-icons/bi";
 import { useRouter } from "next/router";
 import { AiOutlineEdit } from "react-icons/ai";
 
-export async function getServerSideProps(context: any) {
-  const { id } = context.params;
-  return {
-    props: {
-      id,
-    },
-  };
-}
-
-type Props = { id: string };
-
-export default function DetailPesanan({ id }: Props) {
+export default function DetailPesanan() {
   const router = useRouter();
+  const id = router.asPath.split("/").pop();
   const { data, loading, error } = useQuery<Pesanan>(`/api/admin/pesanan/${id}`);
   const [produkId, setProdukId] = useState<string | null>(null);
 

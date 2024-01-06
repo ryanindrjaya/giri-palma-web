@@ -58,8 +58,6 @@ export default function PurchaseOrder({ notificationApi }: Props) {
   const [editPembelian, { loading: loadingEdit }] = useMutation("/api/admin/pembelian", "put");
   const [postSR] = useMutation("/api/admin/surat-jalan", "post", {
     onSuccess: (data: { data: SuratJalanType }) => {
-      console.log("create SR", data);
-
       const bodyChangeStatus = {
         status: "Dikirim",
       };
@@ -127,7 +125,7 @@ export default function PurchaseOrder({ notificationApi }: Props) {
     {
       title: "Tanggal Pembelian",
       key: "tanggal_pembelian",
-      render: (_v, item) => dayjs(item.created_at).format("DD MMMM YYYY"),
+      render: (_v, item) => dayjs(item.created_at).format("DD/MM/YYYY"),
     },
     {
       title: "Pelanggan",

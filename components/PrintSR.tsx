@@ -49,9 +49,9 @@ const PrintSR = React.forwardRef(({ data }: Props, ref: any) => {
     <section
       ref={ref}
       style={{
-        width: "210mm",
-        height: "144.5mm",
-        maxHeight: "144.5mm",
+        width: "21.5cm",
+        height: "14cm",
+        maxHeight: "14cm",
         fontFamily: "'Inria Sans', sans-serif",
       }}
       className={`border-black relative rounded-sm py-1 border-solid border`}
@@ -71,7 +71,7 @@ const PrintSR = React.forwardRef(({ data }: Props, ref: any) => {
 
           <div className="flex gap-3 self-start">
             <p className="m-0 text-xs self-start mt-1">
-              <span className="font-bold">Nomor SR</span>: {data?.nomor_surat_jalan}
+              <span className="font-bold">Nomor SJ</span>: {data?.nomor_surat_jalan}
             </p>
             {data?.pembelian ? (
               <p className="m-0 text-xs self-start mt-1">
@@ -81,7 +81,7 @@ const PrintSR = React.forwardRef(({ data }: Props, ref: any) => {
           </div>
         </div>
         <div className="flex-[0.5]">
-          <p className="uppercase text-right m-0 text-xs">Malang, {dayjs().format("DD MMMM YYYY")}</p>
+          <p className="uppercase text-right m-0 text-xs">Malang, {dayjs().format("DD/MM/YYYY")}</p>
           <div className="flex gap-1 mb-2">
             <p className="m-0 text-xs font-bold min-w-[80px]">Tuan</p>
             <p className="m-0 text-xs">:</p>
@@ -184,7 +184,7 @@ const PrintSR = React.forwardRef(({ data }: Props, ref: any) => {
         </tr>
       </table>
 
-      <div style={borderBottom} className="w-full flex justify-center mt-2 pb-24">
+      <div style={borderBottom} className="w-full flex justify-center mt-2 pb-20">
         <p className="m-0 font-bold text-xs">TANDA TANGAN PEMBELI</p>
       </div>
 

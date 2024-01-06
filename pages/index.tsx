@@ -16,7 +16,7 @@ export default function Login() {
 
   const [login, { loading }] = useMutation<LoginRequest, LoginResponse>("/api/admin/login", "post", {
     onSuccess: (data) => {
-      if (data.data.user.role.nama !== "Admin") {
+      if (!data.data.user.role.nama.toLowerCase().includes("admin")) {
         api.error({
           message: "Tidak diizinkan",
           description: "Anda tidak memiliki akses ke halaman ini",
@@ -76,7 +76,7 @@ export default function Login() {
         {contextHolder}
         <div className="max-w-sm w-full h-full relative z-20 bg-white flex justify-center flex-col rounded-lg border border-gray-200 px-6 py-4">
           <div className="flex mb-5 flex-col gap-1 items-center justify-center">
-            <img src="/images/blikasur-logo.png" className="w-full rounded-md" />
+            {/* <img src="/images/blikasur-logo.png" className="w-full rounded-md" /> */}
           </div>
           <Form form={form} onFinish={handleLogin} layout="vertical" className="mt-4">
             <Form.Item

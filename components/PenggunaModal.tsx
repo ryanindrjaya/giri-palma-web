@@ -1,7 +1,7 @@
 import useQuery from "@/hooks/useQuery";
 import { Pelanggan } from "@/types/pelanggan.type";
-import { Descriptions, DescriptionsProps, Image, Input, Modal, Select } from "antd";
-import React, { useEffect, useMemo } from "react";
+import { Button, Descriptions, DescriptionsProps, Form, Image, Input, Modal, Select, message } from "antd";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { MdOutlineOpenInNew } from "react-icons/md";
 import SkeletonTable from "./SkeletonTable";
 import { User } from "@/types/user.type";
@@ -20,6 +20,21 @@ type Props = {
 
 export default function PenggunaModal({ refetch, open, pengguna, onClose }: Props) {
   if (!pengguna) return null;
+
+  const [show, setShow] = useState<string>("deskripsi");
+  const [form] = Form.useForm();
+
+  const [changePassword, { loading: loadingChangePassword }] = useMutation(
+    `/api/admin/user/change-password-admin`,
+    "post",
+    {
+      onSuccess: () => {
+        message.success("Berhasil mengubah password");
+        setShow("deskripsi");
+        form.resetFields();
+      },
+    }
+  );
 
   const {
     data: lokasi,
@@ -94,6 +109,7 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
         label: "Lokasi",
         children: (
           <Select
+            suffixIcon={null}
             defaultValue={pengguna?.lokasi?.id}
             onChange={(value) => {
               edit({ lokasi_id: value });
@@ -108,6 +124,7 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
         label: "Role",
         children: (
           <Select
+            suffixIcon={null}
             defaultValue={pengguna?.role?.id}
             onChange={(value) => {
               edit({ role_id: value });
@@ -159,23 +176,99 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
     [pengguna, role, lokasi]
   );
 
+  const Deskripsi = () => (
+    <div className="flex flex-col gap-4">
+      <Descriptions bordered size="small" column={2} title="Data Pengguna" items={dataPelanggan} />
+
+      <span
+        onClick={() => setShow("change-password")}
+        className="text-blue-400 self-start cursor-pointer hover:text-blue-400/75 transition-colors duration-100"
+      >
+        Ganti Password
+      </span>
+    </div>
+  );
+
+  const handleChangePassword = () => {
+    const values = form.getFieldsValue();
+
+    if (!values.new_password || !values.confirm_new_password) {
+      message.error("Password tidak boleh kosong");
+      return;
+    }
+
+    if (values.new_password !== values.confirm_new_password) {
+      message.error("Password tidak sama");
+      return;
+    }
+
+    changePassword({
+      user_id: pengguna.id,
+      new_password: values.new_password,
+    }).catch((err) => {
+      message.error(err?.response?.data?.message || "Terjadi kesalahan");
+    });
+  };
+
+  const ChangePassword = () => (
+    <div className="flex flex-col gap-4">
+      <p className="m-0 text-base font-bold">Ganti Password Pengguna</p>
+
+      <Form
+        form={form}
+        layout="vertical"
+        onKeyUp={(e) => {
+          if (e.key === "Enter") {
+            handleChangePassword();
+          }
+        }}
+        onFinish={handleChangePassword}
+      >
+        <Form.Item name="new_password">
+          <Input.Password placeholder="Password Baru" />
+        </Form.Item>
+
+        <Form.Item name="confirm_new_password">
+          <Input.Password placeholder="Konfirmasi Password Baru" />
+        </Form.Item>
+      </Form>
+
+      <span
+        onClick={() => setShow("deskripsi")}
+        className="text-blue-400 self-start cursor-pointer hover:text-blue-400/75 transition-colors duration-100"
+      >
+        Kembali
+      </span>
+    </div>
+  );
+
+  const getLayout = useCallback(() => {
+    switch (show) {
+      case "deskripsi":
+        return <Deskripsi />;
+      case "change-password":
+        return <ChangePassword />;
+
+      default:
+        return null;
+    }
+  }, [show]);
+
   return (
     <Modal
-      okButtonProps={{ hidden: true, style: { display: "none" } }}
+      okButtonProps={{
+        hidden: show === "deskripsi" ? true : false,
+        style: { display: show === "deskripsi" ? "none" : "unset" },
+      }}
+      okText="Simpan"
       cancelText="Tutup"
       title="Pengguna Detail"
       width={1000}
       open={open}
-      onOk={onClose}
+      onOk={show === "deskripsi" ? onClose : handleChangePassword}
       onCancel={onClose}
     >
-      {loadingLokasi || loadingRole ? (
-        <SkeletonTable />
-      ) : (
-        <div className="flex flex-col gap-4">
-          <Descriptions bordered size="small" column={2} title="Data Pengguna" items={dataPelanggan} />
-        </div>
-      )}
+      {loadingLokasi || loadingRole ? <SkeletonTable /> : getLayout()}
     </Modal>
   );
 }

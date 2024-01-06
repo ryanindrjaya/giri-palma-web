@@ -31,6 +31,7 @@ export default function SuratJalan({ notificationApi }: Props) {
   const [selectedRow, setSelectedRow] = useState<SuratJalanType[]>([]);
   const { data, loading, refetch } = useQuery<SuratJalanType[]>("/api/admin/surat-jalan");
   const [editPembelian] = useMutation("/api/admin/pembelian", "put");
+  const [confirm, { loading: loadingConfirm }] = useMutation("/api/admin/surat-jalan/delivered", "post");
   const [deleteSuratJalan, { loading: loadingDelete }] = useMutation("/api/admin/surat-jalan", "delete", {
     onSuccess: () => {
       notificationApi.success({
@@ -98,19 +99,30 @@ export default function SuratJalan({ notificationApi }: Props) {
     });
   };
 
-  const confirmSuratJalan = (pembelianId: string) => {
+  const confirmSuratJalan = (pembelianId: string, suratJalanId: string) => {
     const body = {
       status: "Diterima",
     };
 
-    editPembelian(body, pembelianId)
+    confirm(undefined, suratJalanId)
       .then(() => {
-        notificationApi.success({
-          message: "Berhasil",
-          description: "Berhasil konfirmasi pengiriman surat jalan",
-          placement: "topRight",
-        });
-        refetch();
+        editPembelian(body, pembelianId)
+          .then(() => {
+            notificationApi.success({
+              message: "Berhasil",
+              description: "Berhasil konfirmasi pengiriman surat jalan",
+              placement: "topRight",
+            });
+            refetch();
+          })
+          .catch((err) => {
+            console.log(err);
+            notificationApi.error({
+              message: "Gagal",
+              description: err?.response?.data?.message || "Gagal mengubah status pembelian",
+              placement: "topRight",
+            });
+          });
       })
       .catch((err) => {
         console.log(err);
@@ -132,7 +144,7 @@ export default function SuratJalan({ notificationApi }: Props) {
     {
       title: "Tanggal Surat Jalan",
       key: "tanggal_surat_jalan",
-      render: (_v, item) => dayjs(item.created_at).format("DD MMMM YYYY"),
+      render: (_v, item) => dayjs(item.created_at).format("DD/MM/YYYY"),
     },
     {
       title: "Nomor Surat Jalan",
@@ -154,13 +166,16 @@ export default function SuratJalan({ notificationApi }: Props) {
 
         switch (status) {
           case "CREATED":
-            color = "green";
+            color = "blue";
             break;
           case "CANCELED":
             color = "red";
             break;
+          case "DELIVERED":
+            color = "green";
+            break;
           default:
-            color = "blue";
+            color = "gray";
         }
 
         return (
@@ -185,20 +200,22 @@ export default function SuratJalan({ notificationApi }: Props) {
                 <FaPrint size={18} />
               </Button>
             </Tooltip>
-            <Popconfirm
-              title="Verifikasi pengiriman barang?"
-              description="Pastikan barang sudah dikirimkan ke pelanggan"
-              onConfirm={() => confirmSuratJalan(item.pembelian_id)}
-              okText="Ya"
-              cancelText="Batal"
-              placement="bottom"
-            >
-              <Tooltip title="Konfirmasi pengiriman">
-                <Button type="primary" className="flex p-1 justify-center bg-success items-center">
-                  <CheckOutlined size={18} />
-                </Button>
-              </Tooltip>
-            </Popconfirm>
+            {item.status === "DELIVERED" ? null : (
+              <Popconfirm
+                title="Verifikasi pengiriman barang?"
+                description="Pastikan barang sudah dikirimkan ke pelanggan"
+                onConfirm={() => confirmSuratJalan(item.pembelian_id, item.id)}
+                okText="Ya"
+                cancelText="Batal"
+                placement="bottom"
+              >
+                <Tooltip title="Konfirmasi pengiriman">
+                  <Button type="primary" className="flex p-1 justify-center bg-success items-center">
+                    <CheckOutlined size={18} />
+                  </Button>
+                </Tooltip>
+              </Popconfirm>
+            )}
             <Tooltip title="Batalkan">
               <Button
                 onClick={() => setSuratJalanId(item.id)}

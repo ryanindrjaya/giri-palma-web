@@ -19,20 +19,7 @@ import { ExportOutlined } from "@ant-design/icons";
 import useMutation from "@/hooks/useMutation";
 import { useRouter } from "next/router";
 import useQuery from "@/hooks/useQuery";
-
-// export async function getServerSideProps(ctx: any) {
-//   const id = ctx.params.id;
-//   const jwt = ctx.req.headers.cookie?.split("jwt=")?.[1];
-//   const pelanggan = await getData<Pelanggan[]>("pelanggan", jwt || "");
-//   const pesanan = await getData<Pesanan>(`pesanan/${id}`, jwt || "");
-
-//   return {
-//     props: {
-//       pelanggan,
-//       pesanan,
-//     },
-//   };
-// }
+import { User } from "@/types/user.type";
 
 type Props = {
   notificationApi: NotificationInstance;
@@ -48,38 +35,19 @@ interface ProductData extends Produk {
 export default function EditPesanan({ notificationApi }: Props) {
   const [form] = Form.useForm();
   const router = useRouter();
-  const id = router.asPath.split("/")[router.asPath.split("/").length - 2];
-
-  const { data: pesanan, loading: loadingPesanan } = useQuery<Pesanan>(`/api/admin/pesanan/${id}`, {
-    trigger: !!id,
-  });
 
   const { data: pelanggan, loading: loadingPelanggan } = useQuery<Pelanggan[]>("/api/admin/pelanggan");
-
+  const { data: sales, loading: loadingSales } = useQuery<User[]>("/api/admin/user");
   const [products, setProducts] = useState<ProductData[]>([]);
-  const [metodeBayar, setMetodeBayar] = useState<string>("");
+  const [metodeBayar, setMetodeBayar] = useState<string>("tunai");
   const [pembayaranPerTermin, setPembayaranPerTermin] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const [cancelReason, setCancelReason] = useState<string>("");
 
-  const [editPesanan, { loading: loadingEdit }] = useMutation(`/api/admin/pesanan/${pesanan?.id}`, "put", {
-    onSuccess: () => {
+  const [createPesanan, { loading: loadingCreatePesanan }] = useMutation("/api/admin/pesanan", "post", {
+    onSuccess(data: Pesanan) {
       notificationApi.success({
-        message: "Berhasil mengubah pesanan",
-        description: `Pesanan dengan nomor ${pesanan?.nomor_pesanan} berhasil diubah`,
+        message: "Berhasil membuat pesanan",
       });
-      router.push("/dashboard/pesanan");
-    },
-  });
-
-  const [cancelPesanan, { loading: loadingCancel }] = useMutation(`/api/admin/pesanan/cancel/${pesanan?.id}`, "post", {
-    onSuccess: () => {
-      notificationApi.success({
-        message: "Berhasil membatalkan pesanan",
-        description: `Pesanan dengan nomor ${pesanan?.nomor_pesanan} berhasil dibatalkan`,
-      });
-      router.push("/dashboard/pesanan");
+      router.push(`/dashboard/pesanan/${data?.id}`);
     },
   });
 
@@ -106,6 +74,32 @@ export default function EditPesanan({ notificationApi }: Props) {
       console.error(error);
     }
   };
+
+  const getLatestNomorPesanan = async () => {
+    try {
+      const jwt = Cookies.get("jwt");
+      const res = await fetcher.get("/api/generate/sp", {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      });
+
+      const nomor = res.data?.data?.nomor;
+
+      if (nomor) {
+        form.setFieldsValue({ nomor_pesanan: nomor });
+      }
+    } catch (error) {
+      console.error(error);
+      notificationApi.error({
+        message: "Terjadi kesalahan saat mengambil nomor pesanan",
+      });
+    }
+  };
+
+  useEffect(() => {
+    getLatestNomorPesanan();
+  }, []);
 
   const filterOption = (input: string, option?: { label: string; value: string }) =>
     (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
@@ -239,60 +233,26 @@ export default function EditPesanan({ notificationApi }: Props) {
     },
   ];
 
-  const initialValues = useMemo(() => {
-    setLoading(true);
-
-    if (!pesanan) {
-      setLoading(false);
-      return {};
-    }
-
-    for (const item of pesanan.pesanan_detail) {
-      const produk = item.produk;
-      const produkIndex = products.findIndex((item) => item.id === produk.id);
-      if (produkIndex === -1) {
-        getProduk(item, item.detail_id);
-      }
-    }
-
-    setLoading(false);
-
-    setMetodeBayar(pesanan?.metode_bayar || "");
-
-    return {
-      ...pesanan,
-      uang_muka: (pesanan.uang_muka || 0) - (pesanan.uang_tukar_tambah || 0),
-      created_at: dayjs(pesanan.created_at),
-      pelanggan_id: pesanan.pelanggan.id,
-    };
-  }, [pesanan]);
-
   const onFinish = async (values: any) => {
     const body = {
       ...values,
-      total: products.reduce((acc, item) => acc + item.subtotal, 0),
-      uang_muka: values.uang_muka + values.uang_tukar_tambah,
       metode_bayar: metodeBayar,
       pembayaran_per_minggu: pembayaranPerTermin,
       created_at: values.created_at?.toISOString(),
       pesanan_detail: products.map((item) => ({
-        subtotal: item.subtotal,
-        harga: item.detail?.harga,
-        detail_id: item?.detail_id,
-        produk_id: item.id,
-        produk_detail_id: item.detail?.detail_id,
-        quantity: item.quantity,
         diskon1: item.detail?.diskon1,
         diskon2: item.detail?.diskon2,
+        produk_detail_id: item.detail?.detail_id,
+        produk_id: item.id,
+        quantity: item.quantity,
       })),
     };
 
-    console.log(body);
-
-    editPesanan(body).catch((err) => {
+    createPesanan(body).catch((err) => {
+      console.error(err);
       notificationApi.error({
-        message: "Gagal mengubah pesanan",
-        description: err?.response?.data?.message || "Terjadi kesalahan saat mengubah pesanan",
+        message: "Terjadi kesalahan saat membuat pesanan",
+        description: err?.response?.data?.message || "Tidak diketahui",
         placement: "topRight",
       });
     });
@@ -496,37 +456,29 @@ export default function EditPesanan({ notificationApi }: Props) {
     onValuesChange({}, values);
   }, [products]);
 
-  const handleCancel = () => {
-    cancelPesanan({ alasan: cancelReason }).catch((err) => {
-      notificationApi.error({
-        message: "Gagal membatalkan pesanan",
-        description: err?.response?.data?.message || "Terjadi kesalahan saat membatalkan pesanan",
-        placement: "topRight",
-      });
-    });
-  };
-
   return (
-    <DashboardLayout title="Edit Pesanan" overrideDetailId={pesanan?.nomor_pesanan}>
-      {loading ? (
+    <DashboardLayout title="Tambah Pesanan">
+      {loadingPelanggan || loadingSales ? (
         <SkeletonTable />
       ) : (
         <>
-          <Form
-            form={form}
-            onFinish={onFinish}
-            onValuesChange={onValuesChange}
-            layout="vertical"
-            initialValues={initialValues}
-          >
+          <Form form={form} onFinish={onFinish} onValuesChange={onValuesChange} layout="vertical">
             <div className="mb-4">
               <p className="text-lg font-bold">Detail Pemesanan</p>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <Form.Item name="created_at" label="Tanggal Pemesanan" rules={requiredRules}>
+                <Form.Item initialValue={dayjs()} name="created_at" label="Tanggal Pemesanan" rules={requiredRules}>
                   <DatePicker className="w-full" format={"DD/MM/YYYY"} />
                 </Form.Item>
                 <Form.Item name="nomor_pesanan" label="Nomor Pesanan" rules={requiredRules}>
                   <Input readOnly className="w-full" />
+                </Form.Item>
+                <Form.Item name="user_id" label="Sales" rules={requiredRules}>
+                  <Select
+                    className="w-full"
+                    filterOption={filterOption}
+                    showSearch
+                    options={parseToOption(sales || [], "id", "nama")}
+                  />
                 </Form.Item>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -572,46 +524,17 @@ export default function EditPesanan({ notificationApi }: Props) {
             </div>
 
             <div className="w-full gap-4 flex justify-center mt-7">
-              <Button size="large" className="flex-[0.25]" type="primary" htmlType="submit" loading={loadingEdit}>
-                Simpan
-              </Button>
-
               <Button
+                loading={loadingCreatePesanan}
                 size="large"
-                className="flex-[0.1] ml-4"
-                danger
-                type="text"
-                loading={loadingCancel}
-                onClick={() => setOpenModal(true)}
+                className="flex-[0.25]"
+                type="primary"
+                htmlType="submit"
               >
-                Batalkan Pesanan
+                Buat Pesanan
               </Button>
             </div>
           </Form>
-          <Modal
-            title="Batalkan Pesanan"
-            open={openModal}
-            onOk={handleCancel}
-            onCancel={() => setOpenModal(false)}
-            footer={null}
-            okButtonProps={{ loading: loadingCancel, danger: true, disabled: cancelReason === "" }}
-          >
-            <p>
-              Harap masukkan alasan pembatalan pesanan. Alasan pembatalan akan ditampilkan pada halaman detail pesanan
-            </p>
-            <Input.TextArea
-              className="mt-4"
-              rows={4}
-              value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-            />
-            <div className="flex justify-end gap-4 mt-4">
-              <Button onClick={() => setOpenModal(false)}>Batal</Button>
-              <Button danger onClick={handleCancel}>
-                Batalkan
-              </Button>
-            </div>
-          </Modal>
         </>
       )}
     </DashboardLayout>

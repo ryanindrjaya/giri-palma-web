@@ -74,7 +74,7 @@ const PrintPO = React.forwardRef(({ data }: Props, ref: any) => {
           </p>
         </div>
         <div className="flex-[0.5]">
-          <p className="uppercase text-right m-0 text-xs">Malang, {dayjs().format("DD MMMM YYYY")}</p>
+          <p className="uppercase text-right m-0 text-xs">Malang, {dayjs().format("DD/MM/YYYY")}</p>
           <div className="flex gap-1 mb-2">
             <p className="m-0 text-xs font-bold min-w-[80px]">Tuan</p>
             <p className="m-0 text-xs">:</p>
