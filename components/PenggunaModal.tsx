@@ -1,6 +1,6 @@
 import useQuery from "@/hooks/useQuery";
 import { Pelanggan } from "@/types/pelanggan.type";
-import { Button, Descriptions, DescriptionsProps, Form, Image, Input, Modal, Select, message } from "antd";
+import { Button, Descriptions, DescriptionsProps, Drawer, Form, Image, Input, Modal, Select, message } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { MdOutlineOpenInNew } from "react-icons/md";
 import SkeletonTable from "./SkeletonTable";
@@ -231,6 +231,10 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
         <Form.Item name="confirm_new_password">
           <Input.Password placeholder="Konfirmasi Password Baru" />
         </Form.Item>
+
+        <Button loading={loadingChangePassword} htmlType="submit" type="primary" block>
+          Simpan
+        </Button>
       </Form>
 
       <span
@@ -241,18 +245,6 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
       </span>
     </div>
   );
-
-  const getLayout = useCallback(() => {
-    switch (show) {
-      case "deskripsi":
-        return <Deskripsi />;
-      case "change-password":
-        return <ChangePassword />;
-
-      default:
-        return null;
-    }
-  }, [show]);
 
   return (
     <Modal
@@ -268,7 +260,10 @@ export default function PenggunaModal({ refetch, open, pengguna, onClose }: Prop
       onOk={show === "deskripsi" ? onClose : handleChangePassword}
       onCancel={onClose}
     >
-      {loadingLokasi || loadingRole ? <SkeletonTable /> : getLayout()}
+      {loadingLokasi || loadingRole ? <SkeletonTable /> : <Deskripsi />}
+      <Drawer open={show === "change-password"} onClose={() => setShow("deskripsi")} width={400}>
+        <ChangePassword />
+      </Drawer>
     </Modal>
   );
 }
