@@ -10,29 +10,17 @@ import { Button, DatePicker, Form, Input, Select } from "antd";
 import { parseToOption } from "@/lib/helpers/parseToOption";
 import useMutation from "@/hooks/useMutation";
 import { useRouter } from "next/router";
-
-export async function getServerSideProps(ctx: any) {
-  const jwt = ctx.req.headers.cookie?.split("jwt=")?.[1];
-  const roles = await getData<Role[]>("role", jwt || "");
-  const lokasi = await getData<Lokasi[]>("lokasi-produk", jwt || "");
-
-  return {
-    props: {
-      roles,
-      lokasi,
-    },
-  };
-}
+import useQuery from "@/hooks/useQuery";
 
 type Props = {
   notificationApi: NotificationInstance;
-  roles: Role[];
-  lokasi: Lokasi[];
 };
 
-export default function TambahPengguna({ lokasi, notificationApi, roles }: Props) {
+export default function TambahPengguna({ notificationApi }: Props) {
   const [form] = Form.useForm();
   const router = useRouter();
+  const { data: roles, loading: loadingRoles } = useQuery<Role[]>("/api/admin/role");
+  const { data: lokasi, loading: loadingLokasi } = useQuery<Lokasi[]>("/api/admin/lokasi");
   const [create, { loading }] = useMutation("/api/admin/user", "post", {
     onSuccess: () => {
       notificationApi.success({
@@ -82,7 +70,7 @@ export default function TambahPengguna({ lokasi, notificationApi, roles }: Props
   };
 
   return (
-    <DashboardLayout title="Tambah Pengguna">
+    <DashboardLayout title="Tambah Pengguna" isLoading={loadingRoles || loadingLokasi}>
       <Form form={form} onFinish={handleSubmit} layout="vertical">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <Form.Item label="Username" name="username" rules={[{ required: true, message: "Username harus diisi" }]}>
@@ -116,10 +104,10 @@ export default function TambahPengguna({ lokasi, notificationApi, roles }: Props
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Form.Item label="Role" name="role_id" rules={[{ required: true, message: "Role harus diisi" }]}>
-            <Select placeholder="Pilih Role" options={parseToOption(roles, "id", "nama")} />
+            <Select placeholder="Pilih Role" options={parseToOption(roles || [], "id", "nama")} />
           </Form.Item>
           <Form.Item label="Lokasi" name="lokasi_id" rules={[{ required: true, message: "Lokasi harus diisi" }]}>
-            <Select placeholder="Pilih Lokasi" options={parseToOption(lokasi, "id", "nama")} />
+            <Select placeholder="Pilih Lokasi" options={parseToOption(lokasi || [], "id", "nama")} />
           </Form.Item>
         </div>
 
