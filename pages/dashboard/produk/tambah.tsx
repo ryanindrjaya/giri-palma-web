@@ -217,7 +217,7 @@ export default function TambahProduk({ notificationApi }: Props) {
             name="kode"
             rules={[{ required: true, message: "Kode produk harus diisi" }]}
           >
-            <Input readOnly />
+            <Input />
           </Form.Item>
         </div>
         <div className="flex flex-col md:flex-row w-full gap-4">
