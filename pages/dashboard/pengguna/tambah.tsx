@@ -20,7 +20,7 @@ export default function TambahPengguna({ notificationApi }: Props) {
   const [form] = Form.useForm();
   const router = useRouter();
   const { data: roles, loading: loadingRoles } = useQuery<Role[]>("/api/admin/role");
-  const { data: lokasi, loading: loadingLokasi } = useQuery<Lokasi[]>("/api/admin/lokasi");
+  const { data: lokasi, loading: loadingLokasi } = useQuery<Lokasi[]>("/api/admin/lokasi-produk");
   const [create, { loading }] = useMutation("/api/admin/user", "post", {
     onSuccess: () => {
       notificationApi.success({
