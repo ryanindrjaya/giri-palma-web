@@ -2,10 +2,10 @@ import useQuery from "@/hooks/useQuery";
 import DashboardLayout from "@/layout/dashboard.layout";
 import { parseHarga } from "@/lib/helpers/parseNumber";
 import { Laporan } from "@/types/report.type";
-import { Button, Table } from "antd";
+import { Button, DatePicker, Table } from "antd";
 import { ColumnType } from "antd/es/table";
 import dayjs from "dayjs";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { SiMicrosoftexcel } from "react-icons/si";
 import * as ExcelJS from "exceljs";
 import { NotificationInstance } from "antd/es/notification/interface";
@@ -15,7 +15,8 @@ type Props = {
 };
 
 export default function LaporanIndex({ notificationApi }: Props) {
-  const { data, loading, error } = useQuery<Laporan[]>("/api/admin/laporan");
+  const { data, loading, refetch } = useQuery<Laporan[]>("/api/admin/laporan");
+  const [date, setDate] = useState<[string, string] | null>(null);
 
   const columns: ColumnType<Laporan>[] = [
     {
@@ -114,12 +115,35 @@ export default function LaporanIndex({ notificationApi }: Props) {
     }
   }, [data]);
 
+  useEffect(() => {
+    if (date) {
+      refetch({ start_date: date[0], end_date: date[1] });
+    } else {
+      refetch();
+    }
+  }, [date]);
+
   return (
     <DashboardLayout
       title="Laporan"
       isLoading={loading}
       header={
-        <div className="w-full flex justify-end items-center">
+        <div className="w-full flex justify-between items-center">
+          <div>
+            <DatePicker.RangePicker
+              value={date ? [dayjs(date[0]), dayjs(date[1])] : undefined}
+              onChange={(date) => {
+                if (date) {
+                  const start = dayjs(date[0]).format("YYYY-MM-DD");
+                  const end = dayjs(date[1]).format("YYYY-MM-DD");
+                  setDate([start, end]);
+                } else {
+                  setDate(null);
+                }
+              }}
+            />
+          </div>
+
           <Button onClick={downloadExcel} type="primary" className="flex gap-2 items-center">
             <div className="flex items-center gap-2">
               <SiMicrosoftexcel size={18} />
