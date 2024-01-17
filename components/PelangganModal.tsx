@@ -176,15 +176,17 @@ export default function PelangganModal({ refetch, open, pelangganId, onClose }: 
           <div className="mb-5">
             <p className="font-bold text-base">Gambar Pelanggan</p>
             <Image.PreviewGroup>
-              {pelanggan?.image_url?.map((item, idx) => (
-                <Image
-                  key={`gambar-pelanggan-${idx}`}
-                  src={item}
-                  width={200}
-                  height={200}
-                  className="object-cover object-center rounded-md"
-                />
-              ))}
+              <div className="flex gap-3">
+                {pelanggan?.image_url?.map((item, idx) => (
+                  <Image
+                    key={`gambar-pelanggan-${idx}`}
+                    src={item}
+                    width={200}
+                    height={200}
+                    className="object-cover object-center rounded-md"
+                  />
+                ))}
+              </div>
             </Image.PreviewGroup>
           </div>
           <Descriptions bordered size="small" title="Data Pelanggan" items={dataPelanggan} />
