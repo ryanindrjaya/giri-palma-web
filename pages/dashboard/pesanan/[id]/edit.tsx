@@ -22,14 +22,10 @@ import useQuery from "@/hooks/useQuery";
 
 // export async function getServerSideProps(ctx: any) {
 //   const id = ctx.params.id;
-//   const jwt = ctx.req.headers.cookie?.split("jwt=")?.[1];
-//   const pelanggan = await getData<Pelanggan[]>("pelanggan", jwt || "");
-//   const pesanan = await getData<Pesanan>(`pesanan/${id}`, jwt || "");
 
 //   return {
 //     props: {
-//       pelanggan,
-//       pesanan,
+//       id,
 //     },
 //   };
 // }
@@ -50,11 +46,9 @@ export default function EditPesanan({ notificationApi }: Props) {
   const router = useRouter();
   const id = router.asPath.split("/")[router.asPath.split("/").length - 2];
 
-  const { data: pesanan, loading: loadingPesanan } = useQuery<Pesanan>(`/api/admin/pesanan/${id}`, {
-    trigger: !!id,
-  });
+  const { data: pesanan } = useQuery<Pesanan>(`/api/admin/pesanan/${id}`);
 
-  const { data: pelanggan, loading: loadingPelanggan } = useQuery<Pelanggan[]>("/api/admin/pelanggan");
+  const { data: pelanggan } = useQuery<Pelanggan[]>("/api/admin/pelanggan");
 
   const [products, setProducts] = useState<ProductData[]>([]);
   const [metodeBayar, setMetodeBayar] = useState<string>("");
@@ -62,6 +56,7 @@ export default function EditPesanan({ notificationApi }: Props) {
   const [loading, setLoading] = useState<boolean>(true);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [cancelReason, setCancelReason] = useState<string>("");
+  const [initialValues, setInitialValues] = useState<any>({});
 
   const [editPesanan, { loading: loadingEdit }] = useMutation(`/api/admin/pesanan/${pesanan?.id}`, "put", {
     onSuccess: () => {
@@ -239,32 +234,27 @@ export default function EditPesanan({ notificationApi }: Props) {
     },
   ];
 
-  const initialValues = useMemo(() => {
-    setLoading(true);
-
-    if (!pesanan) {
-      setLoading(false);
-      return {};
-    }
-
-    for (const item of pesanan.pesanan_detail) {
-      const produk = item.produk;
-      const produkIndex = products.findIndex((item) => item.id === produk.id);
-      if (produkIndex === -1) {
-        getProduk(item, item.detail_id);
+  useEffect(() => {
+    if (pesanan) {
+      for (const item of pesanan.pesanan_detail) {
+        const produk = item.produk;
+        const produkIndex = products.findIndex((item) => item.id === produk.id);
+        if (produkIndex === -1) {
+          getProduk(item, item.detail_id);
+        }
       }
+
+      setMetodeBayar(pesanan?.metode_bayar || "");
+
+      setInitialValues({
+        ...pesanan,
+        uang_muka: (pesanan.uang_muka || 0) - (pesanan.uang_tukar_tambah || 0),
+        created_at: dayjs(pesanan.created_at),
+        pelanggan_id: pesanan.pelanggan.id,
+      });
+
+      setLoading(false);
     }
-
-    setLoading(false);
-
-    setMetodeBayar(pesanan?.metode_bayar || "");
-
-    return {
-      ...pesanan,
-      uang_muka: (pesanan.uang_muka || 0) - (pesanan.uang_tukar_tambah || 0),
-      created_at: dayjs(pesanan.created_at),
-      pelanggan_id: pesanan.pelanggan.id,
-    };
   }, [pesanan]);
 
   const onFinish = async (values: any) => {
