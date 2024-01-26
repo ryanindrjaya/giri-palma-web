@@ -20,18 +20,19 @@ import useMutation from "@/hooks/useMutation";
 import { useRouter } from "next/router";
 import useQuery from "@/hooks/useQuery";
 
-// export async function getServerSideProps(ctx: any) {
-//   const id = ctx.params.id;
+export async function getServerSideProps(ctx: any) {
+  const id = ctx.params.id;
 
-//   return {
-//     props: {
-//       id,
-//     },
-//   };
-// }
+  return {
+    props: {
+      id,
+    },
+  };
+}
 
 type Props = {
   notificationApi: NotificationInstance;
+  id: string
 };
 
 interface ProductData extends Produk {
@@ -41,10 +42,9 @@ interface ProductData extends Produk {
   detail: ProdukDetail;
 }
 
-export default function EditPesanan({ notificationApi }: Props) {
+export default function EditPesanan({ notificationApi, id }: Props) {
   const [form] = Form.useForm();
   const router = useRouter();
-  const id = router.asPath.split("/")[router.asPath.split("/").length - 2];
 
   const { data: pesanan } = useQuery<Pesanan>(`/api/admin/pesanan/${id}`);
 
@@ -78,29 +78,7 @@ export default function EditPesanan({ notificationApi }: Props) {
     },
   });
 
-  const getProduk = async (pesanan: PesananDetail, detailId: string) => {
-    try {
-      const jwt = Cookies.get("jwt");
-
-      const res = await fetcher.get(`/api/admin/produk/${pesanan.produk.id}`, {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      });
-
-      const item = {
-        ...res.data.data,
-        detail_id: detailId,
-        quantity: pesanan.quantity,
-        subtotal: pesanan.subtotal || 0,
-        detail: pesanan.produk_detail,
-      };
-
-      setProducts([...products, item]);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  
 
   const filterOption = (input: string, option?: { label: string; value: string }) =>
     (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
@@ -235,14 +213,40 @@ export default function EditPesanan({ notificationApi }: Props) {
   ];
 
   useEffect(() => {
-    if (pesanan) {
-      for (const item of pesanan.pesanan_detail) {
-        const produk = item.produk;
-        const produkIndex = products.findIndex((item) => item.id === produk.id);
-        if (produkIndex === -1) {
-          getProduk(item, item.detail_id);
+    
+    const getProduk = async (pesanan: Pesanan) => {
+      try {
+        const tempProducts: ProductData[] = [];
+        for (const detail of pesanan.pesanan_detail) {
+          const jwt = Cookies.get("jwt");
+    
+          const res = await fetcher.get(`/api/admin/produk/${detail.produk.id}`, {
+            headers: {
+              Authorization: `Bearer ${jwt}`,
+            },
+          });
+    
+          const item = {
+            ...res.data.data,
+            detail_id: detail.detail_id,
+            quantity: detail.quantity,
+            subtotal: detail.subtotal || 0,
+            detail: detail.produk_detail,
+          };
+    
+          tempProducts.push(item)
         }
+
+        setProducts(tempProducts)
+
+        setLoading(false)
+      } catch (error) {
+        console.error(error);
       }
+    };
+
+    if (pesanan) {
+      getProduk(pesanan)
 
       setMetodeBayar(pesanan?.metode_bayar || "");
 
@@ -252,10 +256,9 @@ export default function EditPesanan({ notificationApi }: Props) {
         created_at: dayjs(pesanan.created_at),
         pelanggan_id: pesanan.pelanggan.id,
       });
-
-      setLoading(false);
     }
   }, [pesanan]);
+
 
   const onFinish = async (values: any) => {
     const body = {
