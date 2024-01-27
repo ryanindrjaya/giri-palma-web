@@ -92,7 +92,7 @@ export default function TambahPO({ notificationApi }: Props) {
         const pembelianDetail: CreatePembelianDetail[] = [];
 
         data.pesanan_detail?.forEach((item) => {
-          let subtotal = item.quantity * (item.produk_detail?.harga || 0);
+          let subtotal = item.quantity * (item?.harga || 0);
 
           if (item.diskon1 > 0) {
             subtotal = subtotal * ((100 - item.diskon1) / 100);
@@ -109,6 +109,8 @@ export default function TambahPO({ notificationApi }: Props) {
             produk_detail_id: item.produk_detail?.detail_id,
             quantity: item.quantity,
             immutable_quantity: item.quantity,
+            harga: item.harga,
+            harga_jual: item.harga_jual,
             diskon1: item.diskon1,
             diskon2: item.diskon2,
             subtotal: Math.round(subtotal),
@@ -254,7 +256,7 @@ export default function TambahPO({ notificationApi }: Props) {
     {
       title: "Harga Jual",
       key: "harga_jual",
-      render: (_v, item) => `Rp ${parseHarga(item.produk_detail?.harga || 0)}`,
+      render: (_v, item) => `Rp ${parseHarga(item.harga || 0)}`,
     },
     {
       key: "diskon1",
