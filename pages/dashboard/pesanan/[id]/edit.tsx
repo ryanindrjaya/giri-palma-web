@@ -1,24 +1,24 @@
 import ProdukSearch from "@/components/ProdukSearch";
+import SkeletonTable from "@/components/SkeletonTable";
+import useMutation from "@/hooks/useMutation";
+import useQuery from "@/hooks/useQuery";
 import DashboardLayout from "@/layout/dashboard.layout";
-import { getData } from "@/lib/fetcher/getData";
+import fetcher from "@/lib/axios";
+import { parseHarga } from "@/lib/helpers/parseNumber";
 import { parseToOption } from "@/lib/helpers/parseToOption";
 import { Pelanggan } from "@/types/pelanggan.type";
-import { Pesanan, PesananDetail } from "@/types/pesanan.type";
+import { Pesanan } from "@/types/pesanan.type";
 import { Produk, ProdukDetail } from "@/types/produk.type";
-import { Button, DatePicker, Form, Input, InputNumber, Select, Tooltip, Table, Modal } from "antd";
+import { ExportOutlined } from "@ant-design/icons";
+import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Table, Tooltip } from "antd";
 import { NotificationInstance } from "antd/es/notification/interface";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
-import React, { useEffect, useMemo, useState } from "react";
-import { BiTrash } from "react-icons/bi";
 import Cookies from "js-cookie";
-import fetcher from "@/lib/axios";
-import SkeletonTable from "@/components/SkeletonTable";
-import { parseHarga } from "@/lib/helpers/parseNumber";
-import { ExportOutlined } from "@ant-design/icons";
-import useMutation from "@/hooks/useMutation";
 import { useRouter } from "next/router";
-import useQuery from "@/hooks/useQuery";
+import { useEffect, useState } from "react";
+import { BiTrash } from "react-icons/bi";
+import { GiCloakDagger } from "react-icons/gi";
 
 export async function getServerSideProps(ctx: any) {
   const id = ctx.params.id;
@@ -78,7 +78,7 @@ export default function EditPesanan({ notificationApi, id }: Props) {
     },
   });
 
-  
+
 
   const filterOption = (input: string, option?: { label: string; value: string }) =>
     (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
@@ -213,19 +213,24 @@ export default function EditPesanan({ notificationApi, id }: Props) {
   ];
 
   useEffect(() => {
-    
+
     const getProduk = async (pesanan: Pesanan) => {
+
       try {
         const tempProducts: ProductData[] = [];
         for (const detail of pesanan.pesanan_detail) {
           const jwt = Cookies.get("jwt");
-    
+
           const res = await fetcher.get(`/api/admin/produk/${detail.produk.id}`, {
             headers: {
               Authorization: `Bearer ${jwt}`,
             },
           });
-    
+
+          detail.produk_detail.diskon1 = detail.diskon1 || 0
+          detail.produk_detail.diskon2 = detail.diskon2 || 0
+          detail.produk_detail.harga = detail.harga || 0
+
           const item = {
             ...res.data.data,
             detail_id: detail.detail_id,
@@ -233,7 +238,7 @@ export default function EditPesanan({ notificationApi, id }: Props) {
             subtotal: detail.subtotal || 0,
             detail: detail.produk_detail,
           };
-    
+
           tempProducts.push(item)
         }
 
@@ -245,6 +250,7 @@ export default function EditPesanan({ notificationApi, id }: Props) {
       }
     };
 
+
     if (pesanan) {
       getProduk(pesanan)
 
@@ -252,6 +258,7 @@ export default function EditPesanan({ notificationApi, id }: Props) {
 
       setInitialValues({
         ...pesanan,
+
         uang_muka: (pesanan.uang_muka || 0) - (pesanan.uang_tukar_tambah || 0),
         created_at: dayjs(pesanan.created_at),
         pelanggan_id: pesanan.pelanggan.id,
@@ -280,7 +287,6 @@ export default function EditPesanan({ notificationApi, id }: Props) {
       })),
     };
 
-    console.log(body);
 
     editPesanan(body).catch((err) => {
       notificationApi.error({
