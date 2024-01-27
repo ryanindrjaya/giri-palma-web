@@ -110,7 +110,6 @@ export default function TambahPO({ notificationApi }: Props) {
             quantity: item.quantity,
             immutable_quantity: item.quantity,
             harga: item.harga,
-            harga_jual: item.harga_jual,
             diskon1: item.diskon1,
             diskon2: item.diskon2,
             subtotal: Math.round(subtotal),
@@ -130,6 +129,7 @@ export default function TambahPO({ notificationApi }: Props) {
           termin_pembayaran: data?.termin_pembayaran || 0,
           pembayaran_per_minggu: data?.pembayaran_per_minggu || 0,
         });
+
 
         const setFieldPesanan: CreatePembelian = {
           pesanan_id: data.id,
@@ -256,7 +256,20 @@ export default function TambahPO({ notificationApi }: Props) {
     {
       title: "Harga Jual",
       key: "harga_jual",
-      render: (_v, item) => `Rp ${parseHarga(item.harga || 0)}`,
+      // render: (_v, item) => `Rp ${parseHarga(item.harga || 0)}`,
+      render: (_v, item, index) => (
+        <Form.Item noStyle name={["pembelian_detail", index, "harga"]} initialValue={item.harga}>
+          <InputNumber
+            className="w-full"
+            onFocus={(e) => e.target.select()}
+            onChange={(value) => {
+              item.harga = value || 0;
+            }}
+            min={0}
+            suffix="%"
+          />
+        </Form.Item>
+      ),
     },
     {
       key: "diskon1",
@@ -310,7 +323,7 @@ export default function TambahPO({ notificationApi }: Props) {
                 className="w-full"
                 onFocus={(e) => e.target.select()}
                 min={0}
-                max={item.immutable_quantity}
+                max={100}
               />
             </Form.Item>
           </>
@@ -341,7 +354,7 @@ export default function TambahPO({ notificationApi }: Props) {
     const detail = allValues.pembelian_detail || [];
 
     const newDetail = detail.map((item: any) => {
-      let subtotal = item.quantity * (item.produk_detail?.harga || 0);
+      let subtotal = item.quantity * (item.harga || 0);
 
       if (item.diskon1 > 0) {
         subtotal = subtotal * ((100 - item.diskon1) / 100);
@@ -496,7 +509,10 @@ export default function TambahPO({ notificationApi }: Props) {
       {isLoading ? (
         <SkeletonTable />
       ) : (
-        <Form form={form} layout="vertical" onFinish={handleCreatePO} onValuesChange={handleValueChange}>
+        <Form form={form} layout="vertical"
+          onValuesChange={handleValueChange}
+          onFinish={handleCreatePO}
+        >
           <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-x-4">
             <Form.Item label="Nomor Pesanan" name="pesanan_id" rules={requiredRule}>
               <Select

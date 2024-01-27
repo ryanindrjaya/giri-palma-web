@@ -102,7 +102,6 @@ export interface CreatePembelianDetail {
   produk_id: string;
   produk_detail_id: string;
   harga: number;
-  harga_jual: number;
   diskon1: number;
   diskon2: number;
   quantity: number;
