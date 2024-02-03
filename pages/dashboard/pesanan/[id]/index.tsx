@@ -285,7 +285,7 @@ export default function DetailPesanan() {
             Sisa Pembayaran
           </Table.Summary.Cell>
           <Table.Summary.Cell index={2} className="bg-primary text-white font-bold">
-            {`Rp ${parseHarga((data?.total || 0) - (data?.uang_muka || 0))}`}
+            {`Rp ${parseHarga((data?.total || 0) - (data?.uang_muka || 0) - (data?.uang_tukar_tambah || 0))}`}
           </Table.Summary.Cell>
         </Table.Summary.Row>
       </>
