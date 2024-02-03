@@ -18,7 +18,6 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { BiTrash } from "react-icons/bi";
-import { GiCloakDagger } from "react-icons/gi";
 
 export async function getServerSideProps(ctx: any) {
   const id = ctx.params.id;
@@ -259,7 +258,7 @@ export default function EditPesanan({ notificationApi, id }: Props) {
       setInitialValues({
         ...pesanan,
 
-        uang_muka: (pesanan.uang_muka || 0) - (pesanan.uang_tukar_tambah || 0),
+        uang_muka: (pesanan.uang_muka || 0),
         created_at: dayjs(pesanan.created_at),
         pelanggan_id: pesanan.pelanggan.id,
       });
@@ -271,7 +270,8 @@ export default function EditPesanan({ notificationApi, id }: Props) {
     const body = {
       ...values,
       total: products.reduce((acc, item) => acc + item.subtotal, 0),
-      uang_muka: values.uang_muka + values.uang_tukar_tambah,
+      uang_muka: values.uang_muka,
+      uang_tukar_tambah: values.uang_tukar_tambah,
       metode_bayar: metodeBayar,
       pembayaran_per_minggu: pembayaranPerTermin,
       created_at: values.created_at?.toISOString(),
@@ -329,7 +329,7 @@ export default function EditPesanan({ notificationApi, id }: Props) {
         </Table.Summary.Row>
 
         <div className="h-1" />
-
+        Uang Muka (DP)
         <Table.Summary.Row key="summary-1">
           <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} colSpan={3} className="font-bold bg-primary text-white rounded-t-md">

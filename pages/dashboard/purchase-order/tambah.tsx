@@ -1,23 +1,22 @@
+import SkeletonTable from "@/components/SkeletonTable";
+import useMutation from "@/hooks/useMutation";
+import useQuery from "@/hooks/useQuery";
 import DashboardLayout from "@/layout/dashboard.layout";
 import fetcher from "@/lib/axios";
+import { capitalize } from "@/lib/helpers/capitalize";
+import { parseHarga } from "@/lib/helpers/parseNumber";
+import { parseToOption } from "@/lib/helpers/parseToOption";
+import { User } from "@/types/login.type";
+import { Pelanggan } from "@/types/pelanggan.type";
 import { CreatePembelian, CreatePembelianDetail } from "@/types/pembelian.type";
+import { Pesanan } from "@/types/pesanan.type";
 import { Button, DatePicker, Form, Input, InputNumber, Select, Skeleton, Table } from "antd";
 import { NotificationInstance } from "antd/es/notification/interface";
-import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import Cookies from "js-cookie";
-import { Pesanan } from "@/types/pesanan.type";
-import useQuery from "@/hooks/useQuery";
-import SkeletonTable from "@/components/SkeletonTable";
-import { parseToOption } from "@/lib/helpers/parseToOption";
-import { Pelanggan } from "@/types/pelanggan.type";
-import { User } from "@/types/login.type";
 import { ColumnsType } from "antd/es/table";
-import useMutation from "@/hooks/useMutation";
-import { FaRegEdit } from "react-icons/fa";
 import dayjs from "dayjs";
-import { parseHarga } from "@/lib/helpers/parseNumber";
-import { capitalize } from "@/lib/helpers/capitalize";
+import Cookies from "js-cookie";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 type Props = {
   notificationApi: NotificationInstance;
 };
@@ -120,7 +119,7 @@ export default function TambahPO({ notificationApi }: Props) {
 
         setSummary({
           total,
-          uang_muka: (data?.uang_muka || 0) - (data?.uang_tukar_tambah || 0),
+          uang_muka: (data?.uang_muka || 0),
           harga_tukar_tambah: data?.uang_tukar_tambah || 0,
           sisa_pembayaran: total - (data?.uang_muka || 0) - (data?.uang_tukar_tambah || 0),
           metode_pembayaran: data?.metode_bayar || "",
