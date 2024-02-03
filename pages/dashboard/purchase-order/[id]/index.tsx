@@ -176,7 +176,7 @@ export default function DetailPesanan({ id }: Props) {
     },
     {
       label: "Sisa Pembayaran",
-      children: `Rp ${parseHarga((data?.total || 0) - (data?.uang_muka || 0))}`,
+      children: `Rp ${parseHarga((data?.total || 0) - (data?.uang_muka || 0) - (data?.uang_tukar_tambah || 0))}`,
       span: 4,
     },
   ];

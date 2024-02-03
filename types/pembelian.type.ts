@@ -41,6 +41,7 @@ export interface DetailPembelian {
   status_pembayaran: string;
   status: string;
   uang_muka: number;
+  uang_tukar_tambah: number;
   total: number;
   sisa_pembayaran: number;
   catatan: string;
