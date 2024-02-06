@@ -216,25 +216,30 @@ export default function EditPesanan({ notificationApi, id }: Props) {
     
     const getProduk = async (pesanan: Pesanan) => {
       try {
+        console.log(pesanan)
         const tempProducts: ProductData[] = [];
         for (const detail of pesanan.pesanan_detail) {
           const jwt = Cookies.get("jwt");
-    
-          const res = await fetcher.get(`/api/admin/produk/${detail.produk.id}`, {
-            headers: {
-              Authorization: `Bearer ${jwt}`,
-            },
-          });
-    
-          const item = {
-            ...res.data.data,
-            detail_id: detail.detail_id,
-            quantity: detail.quantity,
-            subtotal: detail.subtotal || 0,
-            detail: detail.produk_detail,
-          };
-    
-          tempProducts.push(item)
+          
+          if (detail.produk_id) {
+            const res = await fetcher.get(`/api/admin/produk/${detail.produk_id}`, {
+              headers: {
+                Authorization: `Bearer ${jwt}`,
+              },
+            });
+  
+            console.log('res get produk', res)
+      
+            const item = {
+              ...res.data.data,
+              detail_id: detail.detail_id,
+              quantity: detail.quantity,
+              subtotal: detail.subtotal || 0,
+              detail: detail.produk_detail,
+            };
+      
+            tempProducts.push(item)
+          }
         }
 
         setProducts(tempProducts)
