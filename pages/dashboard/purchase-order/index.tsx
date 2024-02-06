@@ -198,7 +198,7 @@ export default function PurchaseOrder({ notificationApi }: Props) {
     {
       title: "Uang Muka",
       key: "uang_muka",
-      render: (_v, item) => `Rp ${parseHarga((item?.uang_muka || 0) - (item?.uang_tukar_tambah || 0))}`,
+      render: (_v, item) => `Rp ${parseHarga((item?.uang_muka || 0))}`,
     },
     {
       title: "Tukar Tambah",
@@ -549,9 +549,8 @@ export default function PurchaseOrder({ notificationApi }: Props) {
                   danger
                   loading={loadingDelete}
                   disabled={loadingDelete}
-                  className={`px-2 flex items-center border border-gray-400 transition-opacity duration-100 rounded-md bg-white cursor-pointer  ${
-                    selectedRow.length > 0 ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-                  } `}
+                  className={`px-2 flex items-center border border-gray-400 transition-opacity duration-100 rounded-md bg-white cursor-pointer  ${selectedRow.length > 0 ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                    } `}
                 >
                   <BsFillTrashFill size={18} />
                 </Button>

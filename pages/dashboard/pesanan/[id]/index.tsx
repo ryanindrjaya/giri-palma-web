@@ -1,18 +1,18 @@
+import ProdukModal from "@/components/ProdukModal";
 import SkeletonTable from "@/components/SkeletonTable";
 import useQuery from "@/hooks/useQuery";
 import DashboardLayout from "@/layout/dashboard.layout";
+import { capitalize } from "@/lib/helpers/capitalize";
 import { parseHarga } from "@/lib/helpers/parseNumber";
 import { Pesanan, PesananDetail } from "@/types/pesanan.type";
 import { Button, Descriptions, DescriptionsProps, Image, Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
-import React, { useMemo, useState } from "react";
-import { PESANAN_COLOR, PESANAN_TEXT_COLOR } from "..";
-import { capitalize } from "@/lib/helpers/capitalize";
-import ProdukModal from "@/components/ProdukModal";
-import { BiPurchaseTag } from "react-icons/bi";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { AiOutlineEdit } from "react-icons/ai";
+import { BiPurchaseTag } from "react-icons/bi";
+import { PESANAN_COLOR, PESANAN_TEXT_COLOR } from "..";
 
 export default function DetailPesanan() {
   const router = useRouter();
@@ -142,8 +142,9 @@ export default function DetailPesanan() {
     },
     {
       label: "Uang Muka (DP)",
-      children: `Rp ${parseHarga((data?.uang_muka || 0) - (data?.uang_tukar_tambah || 0))}`,
+      children: `Rp ${parseHarga((data?.uang_muka || 0))}`,
       span: 4,
+
     },
     {
       label: "Uang Tukar Tambah",
@@ -167,22 +168,22 @@ export default function DetailPesanan() {
     },
     ...(data?.metode_bayar === "tempo"
       ? [
-          {
-            label: "Jangka Waktu Pembayaran",
-            children: `${data?.rentang_waktu_pembayaran ? data?.rentang_waktu_pembayaran / 30 : 0} Bulan`,
-            span: 2,
-          },
-          {
-            label: "Termin Pembayaran",
-            children: `${data?.termin_pembayaran ? data?.termin_pembayaran / 7 : 0} Minggu`,
-            span: 2,
-          },
-          {
-            label: "Pembayaran Per Minggu",
-            children: `Rp ${parseHarga(data?.pembayaran_per_minggu || 0)}`,
-            span: 2,
-          },
-        ]
+        {
+          label: "Jangka Waktu Pembayaran",
+          children: `${data?.rentang_waktu_pembayaran ? data?.rentang_waktu_pembayaran / 30 : 0} Bulan`,
+          span: 2,
+        },
+        {
+          label: "Termin Pembayaran",
+          children: `${data?.termin_pembayaran ? data?.termin_pembayaran / 7 : 0} Minggu`,
+          span: 2,
+        },
+        {
+          label: "Pembayaran Per Minggu",
+          children: `Rp ${parseHarga(data?.pembayaran_per_minggu || 0)}`,
+          span: 2,
+        },
+      ]
       : []),
   ];
 
@@ -266,7 +267,7 @@ export default function DetailPesanan() {
             Uang Muka (DP)
           </Table.Summary.Cell>
           <Table.Summary.Cell index={2} className="font-bold">
-            {`Rp ${parseHarga((data?.uang_muka || 0) - (data?.uang_tukar_tambah || 0))}`}
+            {`Rp ${parseHarga((data?.uang_muka || 0))}`}
           </Table.Summary.Cell>
         </Table.Summary.Row>
         <Table.Summary.Row>
@@ -284,7 +285,7 @@ export default function DetailPesanan() {
             Sisa Pembayaran
           </Table.Summary.Cell>
           <Table.Summary.Cell index={2} className="bg-primary text-white font-bold">
-            {`Rp ${parseHarga((data?.total || 0) - (data?.uang_muka || 0))}`}
+            {`Rp ${parseHarga((data?.total || 0) - (data?.uang_muka || 0) - (data?.uang_tukar_tambah || 0))}`}
           </Table.Summary.Cell>
         </Table.Summary.Row>
       </>
@@ -324,23 +325,23 @@ export default function DetailPesanan() {
       <div className="h-4" />
       {data?.tukar_tambah
         ? data.tukar_tambah.map((item, index) => (
-            <>
-              <Descriptions size="small" column={4} bordered title="Tukar Tambah" items={descriptionTukarTambah} />
-              <p className="font-bold text-base">Dokumen Tukar Tambah</p>
-              <Image.PreviewGroup>
-                {item?.image_url?.map((item, idx) => (
-                  <Image
-                    key={`gambar-tt-${idx}`}
-                    src={item}
-                    width={200}
-                    height={200}
-                    className="object-cover object-center"
-                  />
-                ))}
-              </Image.PreviewGroup>
-              <div className="h-4" />
-            </>
-          ))
+          <>
+            <Descriptions size="small" column={4} bordered title="Tukar Tambah" items={descriptionTukarTambah} />
+            <p className="font-bold text-base">Dokumen Tukar Tambah</p>
+            <Image.PreviewGroup>
+              {item?.image_url?.map((item, idx) => (
+                <Image
+                  key={`gambar-tt-${idx}`}
+                  src={item}
+                  width={200}
+                  height={200}
+                  className="object-cover object-center"
+                />
+              ))}
+            </Image.PreviewGroup>
+            <div className="h-4" />
+          </>
+        ))
         : null}
       <Descriptions size="small" column={4} bordered title="Detail Pelanggan" items={descriptionPelanggan} />
       <p className="text-base font-bold">Detail Pesanan</p>

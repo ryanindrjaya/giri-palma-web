@@ -1,27 +1,26 @@
-import DashboardLayout, { inria } from "@/layout/dashboard.layout";
-import { Button, Descriptions, DescriptionsProps, Input, Popconfirm, Popover, Table, Tag, Tooltip } from "antd";
-import { GiSettingsKnobs } from "react-icons/gi";
-import { AiOutlinePlus, AiOutlineEdit } from "react-icons/ai";
-import React, { useState, useEffect } from "react";
-import useQuery from "@/hooks/useQuery";
 import SkeletonTable from "@/components/SkeletonTable";
-import type { ColumnsType } from "antd/es/table";
-import { BsFillTrashFill } from "react-icons/bs";
 import useDebounce from "@/hooks/useDebounce";
 import useMutation from "@/hooks/useMutation";
-import { useRouter } from "next/router";
+import useQuery from "@/hooks/useQuery";
+import DashboardLayout, { inria } from "@/layout/dashboard.layout";
+import { Button, Input, Popconfirm, Popover, Table, Tag, Tooltip } from "antd";
 import { NotificationInstance } from "antd/es/notification/interface";
+import type { ColumnsType } from "antd/es/table";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { AiOutlineEdit, AiOutlinePlus } from "react-icons/ai";
+import { BsFillTrashFill } from "react-icons/bs";
+import { GiSettingsKnobs } from "react-icons/gi";
 
-import { PesananDetail, Pesanan as PesananType } from "@/types/pesanan.type";
+import { Pesanan as PesananType } from "@/types/pesanan.type";
 
-import { IoAlertCircleOutline } from "react-icons/io5";
-import { FaBox } from "react-icons/fa";
-import { FiTruck } from "react-icons/fi";
 import { parseHarga } from "@/lib/helpers/parseNumber";
-import { BiPurchaseTag } from "react-icons/bi";
-import { FaInfoCircle } from "react-icons/fa";
-import Link from "next/link";
 import { MenuOutlined } from "@ant-design/icons";
+import Link from "next/link";
+import { BiPurchaseTag } from "react-icons/bi";
+import { FaBox, FaInfoCircle } from "react-icons/fa";
+import { FiTruck } from "react-icons/fi";
+import { IoAlertCircleOutline } from "react-icons/io5";
 type Props = {
   notificationApi: NotificationInstance;
 };
@@ -145,7 +144,7 @@ export default function Pesanan({ notificationApi }: Props) {
     {
       title: "Uang Muka (DP)",
       key: "uang_muka",
-      render: (_v, item) => `Rp ${parseHarga((item?.uang_muka || 0) - (item?.uang_tukar_tambah || 0))}`,
+      render: (_v, item) => `Rp ${parseHarga((item?.uang_muka || 0))}`,
     },
     {
       title: "Tukar Tambah",
@@ -268,9 +267,8 @@ export default function Pesanan({ notificationApi }: Props) {
                 danger
                 loading={loadingDelete}
                 disabled={loadingDelete}
-                className={`px-2 flex items-center border border-gray-400 transition-opacity duration-100 rounded-md bg-white cursor-pointer  ${
-                  selectedRow.length > 0 ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-                } `}
+                className={`px-2 flex items-center border border-gray-400 transition-opacity duration-100 rounded-md bg-white cursor-pointer  ${selectedRow.length > 0 ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                  } `}
               >
                 <BsFillTrashFill size={18} />
               </Button>

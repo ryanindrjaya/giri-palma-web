@@ -1,28 +1,35 @@
 import ProdukSearch from "@/components/ProdukSearch";
+import SkeletonTable from "@/components/SkeletonTable";
+import useMutation from "@/hooks/useMutation";
+import useQuery from "@/hooks/useQuery";
 import DashboardLayout from "@/layout/dashboard.layout";
-import { getData } from "@/lib/fetcher/getData";
+import fetcher from "@/lib/axios";
+import { parseHarga } from "@/lib/helpers/parseNumber";
 import { parseToOption } from "@/lib/helpers/parseToOption";
 import { Pelanggan } from "@/types/pelanggan.type";
-import { Pesanan, PesananDetail } from "@/types/pesanan.type";
+import { Pesanan } from "@/types/pesanan.type";
 import { Produk, ProdukDetail } from "@/types/produk.type";
-import { Button, DatePicker, Form, Input, InputNumber, Select, Tooltip, Table, Modal } from "antd";
+import { ExportOutlined } from "@ant-design/icons";
+import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Table, Tooltip } from "antd";
 import { NotificationInstance } from "antd/es/notification/interface";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
-import React, { useEffect, useMemo, useState } from "react";
-import { BiTrash } from "react-icons/bi";
 import Cookies from "js-cookie";
-import fetcher from "@/lib/axios";
-import SkeletonTable from "@/components/SkeletonTable";
-import { parseHarga } from "@/lib/helpers/parseNumber";
-import { ExportOutlined } from "@ant-design/icons";
-import useMutation from "@/hooks/useMutation";
 import { useRouter } from "next/router";
-import useQuery from "@/hooks/useQuery";
+import { useEffect, useState } from "react";
+import { BiTrash } from "react-icons/bi";
 
 export async function getServerSideProps(ctx: any) {
   const id = ctx.params.id;
+export async function getServerSideProps(ctx: any) {
+  const id = ctx.params.id;
 
+  return {
+    props: {
+      id,
+    },
+  };
+}
   return {
     props: {
       id,
@@ -33,6 +40,7 @@ export async function getServerSideProps(ctx: any) {
 type Props = {
   notificationApi: NotificationInstance;
   id: string
+  id: string
 };
 
 interface ProductData extends Produk {
@@ -42,6 +50,7 @@ interface ProductData extends Produk {
   detail: ProdukDetail;
 }
 
+export default function EditPesanan({ notificationApi, id }: Props) {
 export default function EditPesanan({ notificationApi, id }: Props) {
   const [form] = Form.useForm();
   const router = useRouter();
@@ -257,7 +266,8 @@ export default function EditPesanan({ notificationApi, id }: Props) {
 
       setInitialValues({
         ...pesanan,
-        uang_muka: (pesanan.uang_muka || 0) - (pesanan.uang_tukar_tambah || 0),
+
+        uang_muka: (pesanan.uang_muka || 0),
         created_at: dayjs(pesanan.created_at),
         pelanggan_id: pesanan.pelanggan.id,
       });
@@ -265,11 +275,13 @@ export default function EditPesanan({ notificationApi, id }: Props) {
   }, [pesanan]);
 
 
+
   const onFinish = async (values: any) => {
     const body = {
       ...values,
       total: products.reduce((acc, item) => acc + item.subtotal, 0),
-      uang_muka: values.uang_muka + values.uang_tukar_tambah,
+      uang_muka: values.uang_muka,
+      uang_tukar_tambah: values.uang_tukar_tambah,
       metode_bayar: metodeBayar,
       pembayaran_per_minggu: pembayaranPerTermin,
       created_at: values.created_at?.toISOString(),
@@ -285,7 +297,6 @@ export default function EditPesanan({ notificationApi, id }: Props) {
       })),
     };
 
-    console.log(body);
 
     editPesanan(body).catch((err) => {
       notificationApi.error({
@@ -328,7 +339,7 @@ export default function EditPesanan({ notificationApi, id }: Props) {
         </Table.Summary.Row>
 
         <div className="h-1" />
-
+        Uang Muka (DP)
         <Table.Summary.Row key="summary-1">
           <Table.Summary.Cell index={0} align="center" colSpan={4}></Table.Summary.Cell>
           <Table.Summary.Cell index={1} colSpan={3} className="font-bold bg-primary text-white rounded-t-md">
