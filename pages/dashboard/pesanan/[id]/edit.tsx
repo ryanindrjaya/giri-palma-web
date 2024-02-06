@@ -21,8 +21,6 @@ import { BiTrash } from "react-icons/bi";
 
 export async function getServerSideProps(ctx: any) {
   const id = ctx.params.id;
-export async function getServerSideProps(ctx: any) {
-  const id = ctx.params.id;
 
   return {
     props: {
@@ -30,16 +28,10 @@ export async function getServerSideProps(ctx: any) {
     },
   };
 }
-  return {
-    props: {
-      id,
-    },
-  };
-}
+
 
 type Props = {
   notificationApi: NotificationInstance;
-  id: string
   id: string
 };
 
@@ -50,7 +42,6 @@ interface ProductData extends Produk {
   detail: ProdukDetail;
 }
 
-export default function EditPesanan({ notificationApi, id }: Props) {
 export default function EditPesanan({ notificationApi, id }: Props) {
   const [form] = Form.useForm();
   const router = useRouter();
