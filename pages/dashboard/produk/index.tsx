@@ -300,7 +300,7 @@ export default function Produk({ notificationApi }: Props) {
             <Button className="px-2 flex items-center border border-gray-400 rounded-md bg-white cursor-pointer">
               <GiSettingsKnobs size={18} />
             </Button>
-            <Popconfirm
+            {/* <Popconfirm
               title="Hapus produk"
               okButtonProps={{ danger: true, loading: loadingDelete }}
               description="Apakah anda yakin ingin menghapus produk yang dipilih?"
@@ -316,7 +316,7 @@ export default function Produk({ notificationApi }: Props) {
               >
                 <BsFillTrashFill size={18} />
               </Button>
-            </Popconfirm>
+            </Popconfirm> */}
             {tab === "1" ? (
               <Popconfirm
                 title="Non-Aktifkan produk"
