@@ -24,3 +24,19 @@ export interface Lokasi {
   created_at: string;
   updated_at: string;
 }
+
+export interface UserDeletionRequest {
+  username: string;
+  email: string;
+  reason: string;
+}
+
+export interface UserDeletionResponse {
+  id: string;
+  email: string;
+  username: string;
+  reason: string;
+  created_at: string;
+  updated_at: string;
+}
+
